@@ -136,35 +136,35 @@ var server = app.listen(argv.port, argv.public ? undefined : 'localhost', functi
        	console.log('Cesium development server running locally.  Connect to http://localhost:%d/',
 server.address().port);
    	}
-	});  // Master Client - Master Server
+	});  // Server - Clients
 
-var server2 = app.listen(8082); // Master Server - Slave Client  
-var wsServer1 = new WebSocketServer({'httpServer': server}); // Master Client - Master Server
-var wsServer2 = new WebSocketServer({'httpServer': server2}); // Master Server - Slave Client
-var connection2; // Connection from Master Server to Slave Client
-wsServer2.on("request", function(request) { // Port 8082
-	connection2 = request.accept('echo-protocol', request.origin);
-	console.log("Connection Master-Server - Slave-Client Achieved\n");
-	connection2.on("close", function(reasonCode, description)
-	{
-   		console.log("Connection lost\n");
-	})
-});
+var wsServer = new WebSocketServer({'httpServer': server});
 
 
+var count = 0;
+var clients = {};
 
-
-wsServer1.on("request", function(request) { // Port 8081
+wsServer.on("request", function(request) { // Port 8081
 	var connection = request.accept('echo-protocol', request.origin);
-	console.log("Connection Master-Server - Master-Client Achieved\n");
+	//Keep count of all connected clients	
+	var id = count++;
+	//Store connection object for each of the clients
+	clients[id] = connection;
+	console.log((new Date()) + ' Connection accepted [' + id + ']');
+
+	//On receiving message (Camera Properties) from the Master
 	connection.on("message", function(message)
 	{
  	console.log(message.utf8Data);
- 	connection2.send(message.utf8Data); // Send Camera Properties to Slave Client
+		//Broadcast camera properties to connected clients
+ 		for(var i in clients){
+		clients[i].send(message.utf8Data);
+   		}
 	})
 	connection.on("close", function(reasonCode, description)
 	{
-   	console.log("Connection lost\n");
+   	  delete clients[id];
+    	  console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
 	})
 });
 

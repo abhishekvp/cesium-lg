@@ -3,7 +3,7 @@
     /*jshint node:true*/
 
     var express = require('express');
-   var WebSocketServer = require("websocket").server;
+    var WebSocketServer = require("websocket").server;
     var compression = require('compression');
     var url = require('url');
     var request = require('request');
@@ -181,7 +181,6 @@ wsServer.on("request", function(request) { // Port 8081
         console.log(e);
         process.exit(1);
     });
-
 
     server.on('close', function() {
         console.log('Cesium development server stopped.');

@@ -158,6 +158,7 @@ wsServer.on("request", function(request) { // Port 8081
  	console.log(message.utf8Data);
 		//Broadcast camera properties to connected clients
  		for(var i in clients){
+		if(clients[i]!=connection)
 		clients[i].send(message.utf8Data);
    		}
 	})

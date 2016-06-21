@@ -2,15 +2,27 @@
     'use strict';
     /*jshint node:true*/
 
+    var NODE_SERVER_IP = 'localhost';
+    var NODE_SERVER_PORT = 8081;
+    var UDP_PORT = 21567;
+    var UDP_HOST = 'localhost';
+
+
+
     var express = require('express');
     var WebSocketServer = require("websocket").server;
     var compression = require('compression');
     var url = require('url');
     var request = require('request');
 
+
+
+
+
+
     var yargs = require('yargs').options({
         'port' : {
-            'default' : 8081,
+            'default' : NODE_SERVER_PORT,
             'description' : 'Port to listen on.'
         },
         'public' : {
@@ -128,13 +140,13 @@
         });
     });
 
-var server = app.listen(argv.port, argv.public ? undefined : 'localhost', function() {
+var server = app.listen(argv.port, argv.public ? undefined : NODE_SERVER_IP, function() {
    	if (argv.public) {
-       	console.log('Cesium development server running publicly.  Connect to http://localhost:%d/',
+       	console.log('Cesium development server running publicly.  Listening on '+server.address().address+':'+
  	server.address().port);
    	} else {
-       	console.log('Cesium development server running locally.  Connect to http://localhost:%d/',
-server.address().port);
+       	console.log('Cesium development server running publicly.  Listening on '+server.address().address+':'+
+ 	server.address().port);
    	}
 	});  // Server - Clients
 
@@ -200,5 +212,36 @@ wsServer.on("request", function(request) { // Port 8081
             process.exit(1);
         }
     });
+
+
+
+
+var dgram = require('dgram');
+var UDPserver = dgram.createSocket('udp4');
+
+UDPserver.on('listening', function () {
+    var address = UDPserver.address();
+    console.log('UDP Server listening on ' + address.address + ":" + address.port);
+});
+
+UDPserver.on('message', function (message, remote) {
+    var msgString = ''+message;
+    var msgArray = msgString.split(",");
+    for(var i in clients){
+		//if(clients[i]!=connection)
+		var lat = msgArray[1];
+		var lon = msgArray[2];
+		var alt = msgArray[3];
+		var heading = msgArray[4];
+		var pitch = msgArray[5];
+		var roll = msgArray[6];
+
+		clients[i].send('{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
+		
+   		}
+    
+});
+
+UDPserver.bind(UDP_PORT, UDP_HOST);
 
 })();

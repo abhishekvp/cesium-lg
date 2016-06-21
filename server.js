@@ -232,9 +232,9 @@ UDPserver.on('message', function (message, remote) {
 		var lat = msgArray[1];
 		var lon = msgArray[2];
 		var alt = msgArray[3];
-		var heading = msgArray[4];
-		var pitch = msgArray[5];
-		var roll = msgArray[6];
+		var heading = msgArray[4]*Math.PI/180;
+		var pitch = (msgArray[5] - 90)*Math.PI/180;
+		var roll = msgArray[6]*Math.PI/180;
 
 
 		clients[i].send('{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');

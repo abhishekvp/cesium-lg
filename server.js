@@ -236,6 +236,7 @@ UDPserver.on('message', function (message, remote) {
 		var pitch = msgArray[5];
 		var roll = msgArray[6];
 
+
 		clients[i].send('{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
 		
    		}

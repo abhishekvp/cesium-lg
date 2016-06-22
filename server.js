@@ -2,12 +2,7 @@
     'use strict';
     /*jshint node:true*/
 
-    var NODE_SERVER_IP = 'localhost';
-    var NODE_SERVER_PORT = 8081;
-    var UDP_PORT = 21567;
-    var UDP_HOST = 'localhost';
-
-
+    var CONFIG = require('./Apps/js/config.js');
 
     var express = require('express');
     var WebSocketServer = require("websocket").server;
@@ -22,7 +17,7 @@
 
     var yargs = require('yargs').options({
         'port' : {
-            'default' : NODE_SERVER_PORT,
+            'default' : CONFIG.NODE_SERVER_PORT,
             'description' : 'Port to listen on.'
         },
         'public' : {
@@ -140,7 +135,7 @@
         });
     });
 
-var server = app.listen(argv.port, argv.public ? undefined : NODE_SERVER_IP, function() {
+var server = app.listen(argv.port, argv.public ? undefined : CONFIG.NODE_SERVER_IP, function() {
    	if (argv.public) {
        	console.log('Cesium development server running publicly.  Listening on '+server.address().address+':'+
  	server.address().port);
@@ -243,6 +238,6 @@ UDPserver.on('message', function (message, remote) {
     
 });
 
-UDPserver.bind(UDP_PORT, UDP_HOST);
+UDPserver.bind(CONFIG.UDP_PORT, CONFIG.UDP_HOST);
 
 })();

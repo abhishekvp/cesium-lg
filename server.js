@@ -146,14 +146,14 @@ var wsServer = new WebSocketServer({'httpServer': server});
 
 
 var count = 0;
-var clients = {};
+var wsClients = {};
 
 wsServer.on("request", function(request) { // Port 8081
 	var connection = request.accept('echo-protocol', request.origin);
 	//Keep count of all connected clients	
 	var id = count++;
 	//Store connection object for each of the clients
-	clients[id] = connection;
+	wsClients[id] = connection;
 	console.log((new Date()) + ' Connection accepted [' + id + ']');
 
 	//On receiving message (Camera Properties) from the Master
@@ -161,14 +161,14 @@ wsServer.on("request", function(request) { // Port 8081
 	{
  	console.log(message.utf8Data);
 		//Broadcast camera properties to connected clients
- 		for(var i in clients){
-		if(clients[i]!=connection)
-		clients[i].send(message.utf8Data);
+ 		for(var i in wsClients){
+		if(wsClients[i]!=connection)
+		wsClients[i].send(message.utf8Data);
    		}
 	})
 	connection.on("close", function(reasonCode, description)
 	{
-   	  delete clients[id];
+   	  delete wsClients[id];
     	  console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
 	})
 });
@@ -219,7 +219,7 @@ UDPserver.on('listening', function () {
 UDPserver.on('message', function (message, remote) {
 
     var msgArray = String(message).split(',');
-    for(var i in clients){
+    for(var i in wsClients){
 		//if(clients[i]!=connection)
 		var lat = msgArray[1];
 		var lon = msgArray[2];
@@ -229,7 +229,7 @@ UDPserver.on('message', function (message, remote) {
 		var roll = msgArray[6]*Math.PI/180;
 
 
-		clients[i].send('{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
+		wsClients[i].send('{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
 		
    		}
     

@@ -136,14 +136,11 @@
     });
 
 var server = app.listen(argv.port, argv.public ? undefined : CONFIG.NODE_SERVER_IP, function() {
-   	if (argv.public) {
-       	console.log('Cesium development server running publicly.  Listening on '+server.address().address+':'+
- 	server.address().port);
-   	} else {
-       	console.log('Cesium development server running publicly.  Listening on '+server.address().address+':'+
- 	server.address().port);
-   	}
-	});  // Server - Clients
+    console.log('Cesium development server running on '+server.address().address+':'+ server.address().port);
+    if (argv.public) {
+        console.log('Be aware this server is listening on all interfaces');
+    }
+}); // Server - Clients
 
 var wsServer = new WebSocketServer({'httpServer': server});
 

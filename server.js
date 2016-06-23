@@ -220,8 +220,8 @@ UDPserver.on('listening', function () {
 });
 
 UDPserver.on('message', function (message, remote) {
-    var msgString = ''+message;
-    var msgArray = msgString.split(",");
+
+    var msgArray = String(message).split(',');
     for(var i in clients){
 		//if(clients[i]!=connection)
 		var lat = msgArray[1];

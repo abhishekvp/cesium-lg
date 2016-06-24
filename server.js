@@ -219,7 +219,7 @@ UDPserver.on('listening', function () {
 UDPserver.on('message', function (message, remote) {
 
     var msgArray = String(message).split(',');
-    for(var i in wsClients){
+
 		//if(clients[i]!=connection)
 		var lat = msgArray[1];
 		var lon = msgArray[2];
@@ -227,11 +227,11 @@ UDPserver.on('message', function (message, remote) {
 		var heading = msgArray[4]*Math.PI/180;
 		var pitch = (msgArray[5] - 90)*Math.PI/180;
 		var roll = msgArray[6]*Math.PI/180;
+        var msgToWSClients = '{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}';
 
-
-		wsClients[i].send('{"msg-type":"ge-cam", "lon":'+lon+',"lat":'+lat+',"ht":'+alt+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
-		
-   		}
+    for(var i in wsClients){
+		wsClients[i].send(msgToWSClients);		
+   	}
     
 });
 

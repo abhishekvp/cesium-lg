@@ -95,12 +95,12 @@
 
 	function updateFOV() {
 	console.log("Updating FOV for browser window size changed");
-	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV * getAspectRatio());
+	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV / getAspectRatio());
 	}
 
 	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
         var viewer = new Cesium.Viewer('cesiumContainer');
-	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV * getAspectRatio());
+	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV / getAspectRatio());
         // viewer.camera.frustum.fov = Cesium.Math.PI_OVER_SIX; // set fov 30 degrees
         var lastCamStr = "";
         var ws = new ReconnectingWebSocket(CONFIG.wsURI, 'echo-protocol'); // To Master-Server

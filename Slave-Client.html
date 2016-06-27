@@ -44,7 +44,7 @@
             scene3DOnly: true,
             navigationHelpButton: false
         });
-	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV * getAspectRatio());
+	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
         var yawDegrees = getParameterByName('yaw');
         var yawRadians = toRadians(yawDegrees);
 
@@ -99,7 +99,7 @@
 
 	function updateFOV() {
 	console.log("Updating FOV for browser window size changed");
-	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV * getAspectRatio());
+	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
 	}
 
 

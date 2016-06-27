@@ -1,2 +1,3 @@
-Apps/js/config.js
+Apps/js/node-config.js
+Apps/js/web-config.js
 node_modules/

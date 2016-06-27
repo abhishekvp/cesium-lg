@@ -2,7 +2,7 @@
     'use strict';
     /*jshint node:true*/
 
-    var CONFIG = require('./Apps/js/config.js');
+    var CONFIG = require('./Apps/js/node-config.js');
 
     var express = require('express');
     var WebSocketServer = require("websocket").server;

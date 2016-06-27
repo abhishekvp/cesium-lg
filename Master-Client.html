@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Master Cesium</title>
+    <script src="http://cesiumjs.org/releases/1.22.1/Build/Cesium/Cesium.js"></script>
+    <script src="js/reconnecting-websocket.js"></script>
+    <script src="js/web-config.js"></script>
+    <script src="js/util.js"></script>
+    <style>
+        @import url("http://cesiumjs.org/releases/1.22.1/Build/Cesium/Widgets/widgets.css");
+    </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+
+<body onresize="updateFOV()">
+<div id="cp">
+<div id="cp_head"><h3>Control Panel</h3></div>
+<div id = "cp_list" class="scroll-pane horizontal-only"><p><div id="cp_list_items">
+<table align="center">
+<tr>
+<td><b>Lighting</b></td>
+<td>
+<div class="switch">
+  <input id="cmn-toggle-1" class="cmn-toggle cmn-toggle-round" type="checkbox" onclick="toggleLighting();">
+  <label for="cmn-toggle-1">Light</label>
+</div>
+</td>
+</tr>
+</table>
+</div></p></div>
+
+</div>
+    <div id="cesiumContainer"></div>
+    <script>
+        function getCam() {
+            var camera = viewer.camera;
+            //var lon = Math.round(camera.positionCartographic['longitude'] * CONFIG.camSigFigures);
+            var px = Math.round(camera.position.x);
+            var py = Math.round(camera.position.y);
+            var pz = Math.round(camera.position.z);
+            var heading = Math.round(camera.heading * CONFIG.camSigFigures);
+            var pitch = Math.round(camera.pitch * CONFIG.camSigFigures);
+            var roll = Math.round(camera.roll * CONFIG.camSigFigures);
+            var camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            if (camStr != lastCamStr) {
+                //console.log(camStr);
+                lastCamStr = camStr;
+		console.log("Heading:"+viewer.camera.heading);
+		console.log("Pitch:"+viewer.camera.pitch);
+		console.log("Roll:"+viewer.camera.roll);
+                // Encode Camera Properties as JSON for easier parsing
+                ws.send('{"msg-type":"cam", "lon":'+px+',"lat":'+py+',"ht":'+pz+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
+
+                console.log("Camera Properties sent!");
+            }
+
+            Cesium.requestAnimationFrame(getCam);
+        }
+
+
+        function handleGECam(camVals) {
+	    
+            var px = camVals['lon'],
+                py = camVals['lat'],
+                pz = camVals['ht'],
+                heading = camVals['heading'];
+            pitch = camVals['pitch'];
+            roll = camVals['roll'];
+            camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            console.log(camStr);
+            viewer.camera.setView({
+                destination: new Cesium.Cartesian3.fromDegrees(px,py,pz),
+                orientation: {
+                    heading: heading,
+                    pitch: pitch,
+                    roll: roll
+                }
+            });
+            //viewer.camera.lookRight(yawRadians);
+        }
+
+	function toggleLighting() {
+	viewer.scene.globe.enableLighting = document.getElementById("cmn-toggle-1").checked;
+	console.log("Toggled Lighting");
+	if (ws!=undefined)
+	   ws.send('{"msg-type":"state", "lighting":'+viewer.scene.globe.enableLighting+'}');
+	}
+
+	function updateFOV() {
+	console.log("Updating FOV for browser window size changed");
+	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV * getAspectRatio());
+	}
+
+	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
+        var viewer = new Cesium.Viewer('cesiumContainer');
+	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV * getAspectRatio());
+        // viewer.camera.frustum.fov = Cesium.Math.PI_OVER_SIX; // set fov 30 degrees
+        var lastCamStr = "";
+        var ws = new ReconnectingWebSocket(CONFIG.wsURI, 'echo-protocol'); // To Master-Server
+        ws.onopen = function() {
+            Cesium.requestAnimationFrame(getCam);
+ ws.onmessage = function(message) {
+               // console.log(message.data);
+
+            }
+        //Sending the Initial State to all slaves
+        ws.send('{"msg-type":"state", "lighting":'+viewer.scene.globe.enableLighting+'}');
+
+            ws.onmessage = function(message) {
+                console.log(message.data);
+                var messageJSON = JSON.parse(message.data);
+                if (messageJSON['msg-type'] == "cam") {
+                    console.log("Message-Type: Camera Update")
+                    handleCam(messageJSON);
+                } else if (messageJSON['msg-type'] == "ge-cam") {
+                    console.log("Message-Type: Google Earth Camera Update");
+		    handleGECam(messageJSON);
+
+                } else {
+                    console.log("Message-Type: State Update");
+		}
+
+            }
+
+        }
+    </script>
+</body>
+
+</html>

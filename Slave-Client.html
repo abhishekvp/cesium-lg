@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Slave Cesium</title>
+    <script src="js/reconnecting-websocket.js"></script>
+    <script src="js/web-config.js"></script>
+    <script src="js/util.js"></script>
+    <script src="http://cesiumjs.org/releases/1.22.1/Build/Cesium/Cesium.js"></script>
+    <style>
+        @import url("http://cesiumjs.org/releases/1.22.1/Build/Cesium/Widgets/widgets.css");
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body onresize="updateFOV()">
+    <div id="cesiumContainer"></div>
+
+    <script>
+
+	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
+        viewer = new Cesium.Viewer('cesiumContainer', {
+            timeline: false,
+            animation: false,
+            geocoder: false,
+            fullscreenButton: false,
+            homeButton: false,
+            baseLayerPicker: false,
+            scenemodePicker: false,
+            scene3DOnly: true,
+            navigationHelpButton: false
+        });
+	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV * getAspectRatio());
+        var yawDegrees = getParameterByName('yaw');
+        var yawRadians = toRadians(yawDegrees);
+
+        function handleCam(camVals) {
+	    
+            //var camVals = JSON.parse(camStr);
+            var px = camVals['lon'],
+                py = camVals['lat'],
+                pz = camVals['ht'],
+                heading = camVals['heading'] / CONFIG.camSigFigures;
+            pitch = camVals['pitch'] / CONFIG.camSigFigures;
+            roll = camVals['roll'] / CONFIG.camSigFigures,
+            camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            console.log(camStr);
+            viewer.camera.setView({
+                destination: new Cesium.Cartesian3(px, py, pz),
+                orientation: {
+                    heading: heading,
+                    pitch: pitch,
+                    roll: roll
+                }
+            });
+            viewer.camera.lookRight(yawRadians);
+        }
+
+        function handleGECam(camVals) {
+	    
+            var px = camVals['lon'],
+                py = camVals['lat'],
+                pz = camVals['ht'],
+                heading = camVals['heading'];
+            pitch = camVals['pitch'];
+            roll = camVals['roll'];
+            camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            console.log(camStr);
+            viewer.camera.setView({
+                destination: new Cesium.Cartesian3.fromDegrees(px,py,pz),
+                orientation: {
+                    heading: heading,
+                    pitch: pitch,
+                    roll: roll
+                }
+            });
+        
+
+            viewer.camera.lookRight(yawRadians);
+        }
+        function handleStateChange(state) {
+	    viewer.scene.globe.enableLighting = state['lighting'];
+        
+        }
+
+	function updateFOV() {
+	console.log("Updating FOV for browser window size changed");
+	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV * getAspectRatio());
+	}
+
+
+        var ws = new ReconnectingWebSocket(CONFIG.wsURI, 'echo-protocol'); //Master IP:Port
+        ws.onopen = function() {
+            console.log("WS Master-Slave Connection Achieved");
+            ws.onmessage = function(message) {
+                console.log(message.data);
+                var messageJSON = JSON.parse(message.data);
+                if (messageJSON['msg-type'] == "cam") {
+                    console.log("Message-Type: Camera Update")
+                    handleCam(messageJSON);
+                } else if (messageJSON['msg-type'] == "ge-cam") {
+                    console.log("Message-Type: Google Earth Camera Update");
+		    handleGECam(messageJSON);
+
+                } else {
+                    console.log("Message-Type: State Update");
+		    handleStateChange(messageJSON);
+		}
+
+            }
+        }
+    </script>
+</body>
+
+</html>

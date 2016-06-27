@@ -32,23 +32,7 @@
 
     <script>
 
-	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
-        viewer = new Cesium.Viewer('cesiumContainer', {
-            timeline: false,
-            animation: false,
-            geocoder: false,
-            fullscreenButton: false,
-            homeButton: false,
-            baseLayerPicker: false,
-            scenemodePicker: false,
-            scene3DOnly: true,
-            navigationHelpButton: false
-        });
-	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
-        var yawDegrees = getParameterByName('yaw');
-        var yawRadians = toRadians(yawDegrees);
-
-        function handleCam(camVals) {
+ 	 function handleCam(camVals) {
 	    
             //var camVals = JSON.parse(camStr);
             var px = camVals['lon'],
@@ -92,6 +76,7 @@
 
             viewer.camera.lookRight(yawRadians);
         }
+
         function handleStateChange(state) {
 	    viewer.scene.globe.enableLighting = state['lighting'];
         
@@ -101,6 +86,25 @@
 	console.log("Updating FOV for browser window size changed");
 	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
 	}
+
+
+	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
+        viewer = new Cesium.Viewer('cesiumContainer', {
+            timeline: false,
+            animation: false,
+            geocoder: false,
+            fullscreenButton: false,
+            homeButton: false,
+            baseLayerPicker: false,
+            scenemodePicker: false,
+            scene3DOnly: true,
+            navigationHelpButton: false
+        });
+	updateFOV();
+        var yawDegrees = getParameterByName('yaw');
+        var yawRadians = toRadians(yawDegrees);
+
+      
 
 
         var ws = new ReconnectingWebSocket(CONFIG.wsURI, 'echo-protocol'); //Master IP:Port

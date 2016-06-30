@@ -13,6 +13,17 @@
     <script src="js/reconnecting-websocket.js"></script>
     <script src="js/web-config.js"></script>
     <script src="js/util.js"></script>
+    <script src="js/Long.min.js"></script>
+    <script src="js/ByteBufferAB.min.js"></script>
+    <script src="js/ProtoBuf.min.js"></script>
+    <script>
+        if (typeof dcodeIO === 'undefined' || !dcodeIO.ProtoBuf) {
+            throw (new Error("ProtoBuf.js is not present. Please see www/index.html for manual setup instructions."));
+        }
+        // Initialize ProtoBuf.js
+        var ProtoBuf = dcodeIO.ProtoBuf;
+        var Message = ProtoBuf.loadProtoFile("cesium.proto").build("Message");
+    </script>
     <style>
         @import url("http://cesiumjs.org/releases/1.22.1/Build/Cesium/Widgets/widgets.css");
     </style>
@@ -20,23 +31,28 @@
 </head>
 
 <body onresize="updateFOV()">
-<div id="cp">
-<div id="cp_head"><h3>Control Panel</h3></div>
-<div id = "cp_list" class="scroll-pane horizontal-only"><p><div id="cp_list_items">
-<table align="center">
-<tr>
-<td><b>Lighting</b></td>
-<td>
-<div class="switch">
-  <input id="cmn-toggle-1" class="cmn-toggle cmn-toggle-round" type="checkbox" onclick="toggleLighting();">
-  <label for="cmn-toggle-1">Light</label>
-</div>
-</td>
-</tr>
-</table>
-</div></p></div>
+    <div id="cp">
+        <div id="cp_head">
+            <h3>Control Panel</h3></div>
+        <div id="cp_list" class="scroll-pane horizontal-only">
+            <p>
+                <div id="cp_list_items">
+                    <table align="center">
+                        <tr>
+                            <td><b>Lighting</b></td>
+                            <td>
+                                <div class="switch">
+                                    <input id="cmn-toggle-1" class="cmn-toggle cmn-toggle-round" type="checkbox" onclick="toggleLighting();">
+                                    <label for="cmn-toggle-1">Light</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </p>
+        </div>
 
-</div>
+    </div>
     <div id="cesiumContainer"></div>
     <script>
         function getCam() {
@@ -52,12 +68,19 @@
             if (camStr != lastCamStr) {
                 //console.log(camStr);
                 lastCamStr = camStr;
-		console.log("Heading:"+viewer.camera.heading);
-		console.log("Pitch:"+viewer.camera.pitch);
-		console.log("Roll:"+viewer.camera.roll);
-                // Encode Camera Properties as JSON for easier parsing
-                ws.send('{"msg-type":"cam", "lon":'+px+',"lat":'+py+',"ht":'+pz+',"heading":'+heading+',"pitch":'+pitch+',"roll":'+roll+'}');
+                console.log("Heading:" + viewer.camera.heading);
+                console.log("Pitch:" + viewer.camera.pitch);
+                console.log("Roll:" + viewer.camera.roll);
 
+                var msg = new Message();
+                msg.msgtype = "cam";
+                msg.lon = px;
+                msg.lat = py;
+                msg.ht = pz;
+                msg.heading = heading;
+                msg.pitch = pitch;
+                msg.roll = roll;
+                ws.send(msg.toArrayBuffer());
                 console.log("Camera Properties sent!");
             }
 
@@ -66,7 +89,7 @@
 
 
         function handleGECam(camVals) {
-	    
+
             var px = camVals['lon'],
                 py = camVals['lat'],
                 pz = camVals['ht'],
@@ -76,7 +99,7 @@
             camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({
-                destination: new Cesium.Cartesian3.fromDegrees(px,py,pz),
+                destination: new Cesium.Cartesian3.fromDegrees(px, py, pz),
                 orientation: {
                     heading: heading,
                     pitch: pitch,
@@ -86,48 +109,62 @@
             //viewer.camera.lookRight(yawRadians);
         }
 
-	function toggleLighting() {
-	viewer.scene.globe.enableLighting = document.getElementById("cmn-toggle-1").checked;
-	console.log("Toggled Lighting");
-	if (ws!=undefined)
-	   ws.send('{"msg-type":"state", "lighting":'+viewer.scene.globe.enableLighting+'}');
-	}
+        function toggleLighting() {
+            viewer.scene.globe.enableLighting = document.getElementById("cmn-toggle-1").checked;
+            console.log("Toggled Lighting");
+            if (ws != undefined)
+                var msg = new Message();
+            msg.msgtype = "state";
+            msg.lighting = viewer.scene.globe.enableLighting;
+            ws.send(msg.toArrayBuffer());
+        }
 
-	function updateFOV() {
-	console.log("Updating FOV for browser window size changed");
-	viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV / getAspectRatio());
-	}
+        function updateFOV() {
+            console.log("Updating FOV for browser window size changed");
+            viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV / getAspectRatio());
+        }
 
-	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
+        Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
         var viewer = new Cesium.Viewer('cesiumContainer');
-	updateFOV();
-        // viewer.camera.frustum.fov = Cesium.Math.PI_OVER_SIX; // set fov 30 degrees
+        updateFOV();
         var lastCamStr = "";
-        var ws = new ReconnectingWebSocket(CONFIG.wsURI, 'echo-protocol'); // To Master-Server
+        var ws = new WebSocket(CONFIG.wsURI, 'echo-protocol');
+        ws.binaryType = "arraybuffer";
         ws.onopen = function() {
             Cesium.requestAnimationFrame(getCam);
- ws.onmessage = function(message) {
-               // console.log(message.data);
-
-            }
-        //Sending the Initial State to all slaves
-        ws.send('{"msg-type":"state", "lighting":'+viewer.scene.globe.enableLighting+'}');
-
             ws.onmessage = function(message) {
-                console.log(message.data);
-                var messageJSON = JSON.parse(message.data);
-                if (messageJSON['msg-type'] == "cam") {
-                    console.log("Message-Type: Camera Update")
-                    handleCam(messageJSON);
-                } else if (messageJSON['msg-type'] == "ge-cam") {
-                    console.log("Message-Type: Google Earth Camera Update");
-		    handleGECam(messageJSON);
 
-                } else {
-                    console.log("Message-Type: State Update");
-		}
 
-            }
+                }
+
+            //Sending the Initial State to all slaves
+            var msg = new Message();
+            msg.msgtype = "state";
+            msg.lighting = viewer.scene.globe.enableLighting;
+            ws.send(msg.toArrayBuffer());
+
+            ws.onmessage = function(evt) {
+
+
+                try {
+                    // Decode the Message
+                    var msg = Message.decode(evt.data);
+
+                    if (msg.msgtype == "cam") {
+                        console.log("Message-Type: Camera Update")
+                        handleCam(msg);
+                    } else if (msg.msgtype == "ge-cam") {
+                        console.log("Message-Type: Google Earth Camera Update");
+                        handleGECam(msg);
+
+                    } else {
+                        console.log("Message-Type: State Update");
+                        handleStateChange(msg);
+                    }
+                } catch (err) {
+                    log.value += "Error: " + err + "\n";
+                }
+            };
 
         }
     </script>

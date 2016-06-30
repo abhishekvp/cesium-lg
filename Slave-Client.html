@@ -13,6 +13,17 @@
     <script src="js/web-config.js"></script>
     <script src="js/util.js"></script>
     <script src="http://cesiumjs.org/releases/1.22.1/Build/Cesium/Cesium.js"></script>
+    <script src="js/Long.min.js"></script>
+    <script src="js/ByteBufferAB.min.js"></script>
+    <script src="js/ProtoBuf.min.js"></script>
+    <script>
+        if (typeof dcodeIO === 'undefined' || !dcodeIO.ProtoBuf) {
+            throw (new Error("ProtoBuf.js is not present. Please see www/index.html for manual setup instructions."));
+        }
+        // Initialize ProtoBuf.js
+        var ProtoBuf = dcodeIO.ProtoBuf;
+        var Message = ProtoBuf.loadProtoFile("cesium.proto").build("Message");
+    </script>
     <style>
         @import url("http://cesiumjs.org/releases/1.22.1/Build/Cesium/Widgets/widgets.css");
         html,
@@ -31,17 +42,16 @@
     <div id="cesiumContainer"></div>
 
     <script>
+        function handleCam(camVals) {
 
- 	 function handleCam(camVals) {
-	    
             //var camVals = JSON.parse(camStr);
-            var px = camVals['lon'],
-                py = camVals['lat'],
-                pz = camVals['ht'],
-                heading = camVals['heading'] / CONFIG.camSigFigures;
-            pitch = camVals['pitch'] / CONFIG.camSigFigures;
-            roll = camVals['roll'] / CONFIG.camSigFigures,
-            camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            var px = camVals.lon,
+                py = camVals.lat,
+                pz = camVals.ht,
+                heading = camVals.heading / CONFIG.camSigFigures;
+            pitch = camVals.pitch / CONFIG.camSigFigures;
+            roll = camVals.roll / CONFIG.camSigFigures,
+                camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({
                 destination: new Cesium.Cartesian3(px, py, pz),
@@ -55,40 +65,40 @@
         }
 
         function handleGECam(camVals) {
-	    
-            var px = camVals['lon'],
-                py = camVals['lat'],
-                pz = camVals['ht'],
-                heading = camVals['heading'];
-            pitch = camVals['pitch'];
-            roll = camVals['roll'];
+
+            var px = camVals.lon,
+                py = camVals.lat,
+                pz = camVals.ht,
+                heading = camVals.heading;
+            pitch = camVals.pitch;
+            roll = camVals.roll;
             camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({
-                destination: new Cesium.Cartesian3.fromDegrees(px,py,pz),
+                destination: new Cesium.Cartesian3.fromDegrees(px, py, pz),
                 orientation: {
                     heading: heading,
                     pitch: pitch,
                     roll: roll
                 }
             });
-        
+
 
             viewer.camera.lookRight(yawRadians);
         }
 
         function handleStateChange(state) {
-	    viewer.scene.globe.enableLighting = state['lighting'];
-        
+            viewer.scene.globe.enableLighting = state['lighting'];
+
         }
 
-	function updateFOV() {
-	console.log("Updating FOV for browser window size changed");
-	viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
-	}
+        function updateFOV() {
+            console.log("Updating FOV for browser window size changed");
+            viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
+        }
 
 
-	Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
+        Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
         viewer = new Cesium.Viewer('cesiumContainer', {
             timeline: false,
             animation: false,
@@ -100,32 +110,43 @@
             scene3DOnly: true,
             navigationHelpButton: false
         });
-	updateFOV();
+        updateFOV();
         var yawDegrees = getParameterByName('yaw');
         var yawRadians = toRadians(yawDegrees);
 
-      
 
 
-        var ws = new ReconnectingWebSocket(CONFIG.wsURI, 'echo-protocol'); //Master IP:Port
+
+        var ws = new WebSocket(CONFIG.wsURI, 'echo-protocol');
+        ws.binaryType = "arraybuffer";
         ws.onopen = function() {
             console.log("WS Master-Slave Connection Achieved");
-            ws.onmessage = function(message) {
-                console.log(message.data);
-                var messageJSON = JSON.parse(message.data);
-                if (messageJSON['msg-type'] == "cam") {
-                    console.log("Message-Type: Camera Update")
-                    handleCam(messageJSON);
-                } else if (messageJSON['msg-type'] == "ge-cam") {
-                    console.log("Message-Type: Google Earth Camera Update");
-		    handleGECam(messageJSON);
+            ws.onmessage = function(evt) {
 
-                } else {
-                    console.log("Message-Type: State Update");
-		    handleStateChange(messageJSON);
-		}
 
-            }
+                try {
+                    // Decode the Message
+                    var msg = Message.decode(evt.data);
+
+                    if (msg.msgtype == "cam") {
+                        console.log("Message-Type: Camera Update")
+                        handleCam(msg);
+                    } else if (msg.msgtype == "ge-cam") {
+                        console.log("Message-Type: Google Earth Camera Update");
+                        handleGECam(msg);
+
+                    } else {
+                        console.log("Message-Type: State Update");
+                        handleStateChange(msg);
+                    }
+                } catch (err) {
+                    log.value += "Error: " + err + "\n";
+                }
+            };
+
+
+
+
         }
     </script>
 </body>

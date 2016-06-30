@@ -1,0 +1,10 @@
+message Message {
+    required string msgtype = 1;
+    optional double lon = 2;
+    optional double lat = 3;
+    optional double ht = 4;
+    optional double heading = 5; 
+    optional double pitch = 6;
+    optional double roll = 7;
+    optional bool lighting = 8;
+}

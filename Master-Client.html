@@ -90,12 +90,12 @@
 
         function handleGECam(camVals) {
 
-            var px = camVals['lon'],
-                py = camVals['lat'],
-                pz = camVals['ht'],
-                heading = camVals['heading'];
-            pitch = camVals['pitch'];
-            roll = camVals['roll'];
+            var px = camVals.lon,
+                py = camVals.lat,
+                pz = camVals.ht,
+                heading = camVals.heading;
+            pitch = camVals.pitch;
+            roll = camVals.roll;
             camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({

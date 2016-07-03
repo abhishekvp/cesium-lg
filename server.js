@@ -75,12 +75,12 @@
             if (flags.binary) {
                 try {
                     // Decode the Message
-                    var msg = CesiumSync.decode(data);
-                    console.log("Received: " + msg.msgtype);
+                    var sync = CesiumSync.decode(data);
+                    console.log("Received: " + sync.msgtype);
                     //Broadcast camera properties to connected clients
                     for (var i in wsClients) {
                         if (wsClients[i] != socket)
-                            wsClients[i].send(msg.toBuffer());
+                            wsClients[i].send(sync.toBuffer());
                     }
 
                 } catch (err) {
@@ -126,7 +126,7 @@
 
 
     var UDPserver = dgram.createSocket('udp4');
-    var lastGEMsg = '';
+    var lastGESync = '';
 
     UDPserver.on('listening', function() {
         var address = UDPserver.address();
@@ -135,34 +135,34 @@
 
     UDPserver.on('message', function(message, remote) {
 
-	var msgString = String(message);
+	var syncString = String(message);
 
 	// Avoids sending duplicate camera position
-	if (msgString != lastGEMsg) {
+	if (syncString != lastGESync) {
 
-		var msgArray = String(message).split(',');
-		var lastMsg = String(message);
+		var syncArray = String(message).split(',');
+		var lastsync = String(message);
 
 		//if(clients[i]!=connection)
-		var lat = parseFloat(msgArray[1]);
-		var lon = parseFloat(msgArray[2]);
-		var alt = parseFloat(msgArray[3]);
-		var heading = parseFloat(msgArray[4]) * Math.PI / 180;
-		var pitch = (parseFloat(msgArray[5]) - 90) * Math.PI / 180;
-		var roll = parseFloat(msgArray[6]) * Math.PI / 180;
-		var msgToWSClients = new CesiumSync();
-		msgToWSClients.msgtype = "ge-cam";
-		msgToWSClients.lon = lon;
-		msgToWSClients.lat = lat;
-		msgToWSClients.ht = alt;
-		msgToWSClients.heading = heading;
-		msgToWSClients.pitch = pitch;
-		msgToWSClients.roll = roll;
+		var lat = parseFloat(syncArray[1]);
+		var lon = parseFloat(syncArray[2]);
+		var alt = parseFloat(syncArray[3]);
+		var heading = parseFloat(syncArray[4]) * Math.PI / 180;
+		var pitch = (parseFloat(syncArray[5]) - 90) * Math.PI / 180;
+		var roll = parseFloat(syncArray[6]) * Math.PI / 180;
+		var syncToWSClients = new CesiumSync();
+		syncToWSClients.msgtype = "ge-cam";
+		syncToWSClients.lon = lon;
+		syncToWSClients.lat = lat;
+		syncToWSClients.ht = alt;
+		syncToWSClients.heading = heading;
+		syncToWSClients.pitch = pitch;
+		syncToWSClients.roll = roll;
 
-		lastGEMsg = msgString;
+		lastGEsync = syncString;
 
 		for (var i in wsClients) {
-		    wsClients[i].send(msgToWSClients.toBuffer());
+		    wsClients[i].send(syncToWSClients.toBuffer());
 		}
 
 	}

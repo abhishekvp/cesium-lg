@@ -126,18 +126,18 @@
 
                 try {
                     // Decode the Message
-                    var msg = CesiumSync.decode(evt.data);
+                    var sync = CesiumSync.decode(evt.data);
 
-                    if (msg.msgtype == "cam") {
+                    if (sync.msgtype == "cam") {
                         console.log("Message-Type: Camera Update")
-                        handleCam(msg);
-                    } else if (msg.msgtype == "ge-cam") {
+                        handleCam(sync);
+                    } else if (sync.msgtype == "ge-cam") {
                         console.log("Message-Type: Google Earth Camera Update");
-                        handleGECam(msg);
+                        handleGECam(sync);
 
                     } else {
                         console.log("Message-Type: State Update");
-                        handleStateChange(msg);
+                        handleStateChange(sync);
                     }
                 } catch (err) {
                      console.log("Error: " + err);

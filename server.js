@@ -147,9 +147,9 @@
 		var lat = parseFloat(syncArray[1]);
 		var lon = parseFloat(syncArray[2]);
 		var alt = parseFloat(syncArray[3]);
-		var heading = util.toRadians(parseFloat(syncArray[4]));// * Math.PI / 180;
-		var pitch = util.toRadians((parseFloat(syncArray[5]) - 90));// * Math.PI / 180;
-		var roll = util.toRadians(parseFloat(syncArray[6]));// * Math.PI / 180;
+		var heading = util.toRadians(parseFloat(syncArray[4]));
+		var pitch = util.toRadians((parseFloat(syncArray[5]) - 90));
+		var roll = util.toRadians(parseFloat(syncArray[6]));
 		var syncToWSClients = new CesiumSync();
 		syncToWSClients.msgtype = "ge-cam";
 		syncToWSClients.lon = lon;

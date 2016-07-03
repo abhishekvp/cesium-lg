@@ -2,6 +2,7 @@
     'use strict';
 
     var CONFIG = require('./js/node-config.js');
+    var util = require('./js/node-util.js');
     var http = require('http');
     var dgram = require('dgram');
     var ws = require("ws");
@@ -140,16 +141,15 @@
 	// Avoids sending duplicate camera position
 	if (syncString != lastGESync) {
 
-		var syncArray = String(message).split(',');
-		var lastsync = String(message);
+		var syncArray = syncString.split(',');
 
 		//if(clients[i]!=connection)
 		var lat = parseFloat(syncArray[1]);
 		var lon = parseFloat(syncArray[2]);
 		var alt = parseFloat(syncArray[3]);
-		var heading = parseFloat(syncArray[4]) * Math.PI / 180;
-		var pitch = (parseFloat(syncArray[5]) - 90) * Math.PI / 180;
-		var roll = parseFloat(syncArray[6]) * Math.PI / 180;
+		var heading = util.toRadians(parseFloat(syncArray[4]));// * Math.PI / 180;
+		var pitch = util.toRadians((parseFloat(syncArray[5]) - 90));// * Math.PI / 180;
+		var roll = util.toRadians(parseFloat(syncArray[6]));// * Math.PI / 180;
 		var syncToWSClients = new CesiumSync();
 		syncToWSClients.msgtype = "ge-cam";
 		syncToWSClients.lon = lon;
@@ -159,7 +159,7 @@
 		syncToWSClients.pitch = pitch;
 		syncToWSClients.roll = roll;
 
-		lastGEsync = syncString;
+		lastGESync = syncString;
 
 		for (var i in wsClients) {
 		    wsClients[i].send(syncToWSClients.toBuffer());

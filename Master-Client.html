@@ -73,7 +73,8 @@
                 console.log("Roll:" + viewer.camera.roll);
 
                 var sync = new CesiumSync();
-                sync.msgtype = "cam";
+		// This is a Cesium Camera Position Sync Message
+                sync.msgtype = 1;
                 sync.lon = px;
                 sync.lat = py;
                 sync.ht = pz;
@@ -114,7 +115,8 @@
             console.log("Toggled Lighting");
             if (ws != undefined)
                 var sync = new CesiumSync();
-            sync.msgtype = "state";
+	    // This is a Cesium State Sycn Message
+            sync.msgtype = 3;
             sync.lighting = viewer.scene.globe.enableLighting;
             ws.send(sync.toArrayBuffer());
         }
@@ -133,7 +135,8 @@
             Cesium.requestAnimationFrame(getCam);
             //Sending the Initial State to all slaves
             var sync = new CesiumSync();
-            sync.msgtype = "state";
+	    // This is a Cesium State Sync Message
+            sync.msgtype = 3;
             sync.lighting = viewer.scene.globe.enableLighting;
             ws.send(sync.toArrayBuffer());
 
@@ -144,10 +147,17 @@
                     // Decode the Message
                     var sync = CesiumSync.decode(evt.data);
 
-                    if (sync.msgtype == "cam") {
-                        console.log("Message-Type: Camera Update")
+		    /*
+		    Message Types:
+		    msgtype = 1 --> Cesium Camera Position Sync Message
+		    msgtype = 2 --> Google Earth Camera Position Sync Message
+		    msgtype = 3 --> Cesium State Sync Message
+		    */
+
+                    if (sync.msgtype == 1) {
+                        console.log("Message-Type: Cesium Camera Update")
                         handleCam(sync);
-                    } else if (sync.msgtype == "ge-cam") {
+                    } else if (sync.msgtype == 2) {
                         console.log("Message-Type: Google Earth Camera Update");
                         handleGECam(sync);
 

@@ -1,5 +1,5 @@
 message CesiumSync {
-    required string msgtype = 1;
+    required int32 msgtype = 1;
     optional double lon = 2;
     optional double lat = 3;
     optional double ht = 4;

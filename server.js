@@ -143,7 +143,6 @@
 
 		var syncArray = syncString.split(',');
 
-		//if(clients[i]!=connection)
 		var lat = parseFloat(syncArray[1]);
 		var lon = parseFloat(syncArray[2]);
 		var alt = parseFloat(syncArray[3]);
@@ -151,7 +150,8 @@
 		var pitch = util.toRadians((parseFloat(syncArray[5]) - 90));
 		var roll = util.toRadians(parseFloat(syncArray[6]));
 		var syncToWSClients = new CesiumSync();
-		syncToWSClients.msgtype = "ge-cam";
+		// This is a Google Earth Camera Position Sync Message
+		syncToWSClients.msgtype = 2;
 		syncToWSClients.lon = lon;
 		syncToWSClients.lat = lat;
 		syncToWSClients.ht = alt;

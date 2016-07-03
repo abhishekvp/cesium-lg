@@ -128,8 +128,7 @@
         var viewer = new Cesium.Viewer('cesiumContainer');
         updateFOV();
         var lastCamStr = "";
-        var ws = new WebSocket(CONFIG.wsURI, 'echo-protocol');
-        ws.binaryType = "arraybuffer";
+	var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, { binaryType: 'arraybuffer' } );
         ws.onopen = function() {
             Cesium.requestAnimationFrame(getCam);
             //Sending the Initial State to all slaves

@@ -117,8 +117,7 @@
 
 
 
-        var ws = new WebSocket(CONFIG.wsURI, 'echo-protocol');
-        ws.binaryType = "arraybuffer";
+	var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, { binaryType: 'arraybuffer' } );
         ws.onopen = function() {
             console.log("WS Master-Slave Connection Achieved");
             ws.onmessage = function(evt) {

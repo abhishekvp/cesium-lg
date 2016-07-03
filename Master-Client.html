@@ -132,11 +132,6 @@
         ws.binaryType = "arraybuffer";
         ws.onopen = function() {
             Cesium.requestAnimationFrame(getCam);
-            ws.onmessage = function(message) {
-
-
-                }
-
             //Sending the Initial State to all slaves
             var msg = new Message();
             msg.msgtype = "state";
@@ -144,7 +139,6 @@
             ws.send(msg.toArrayBuffer());
 
             ws.onmessage = function(evt) {
-
 
                 try {
                     // Decode the Message

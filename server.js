@@ -126,6 +126,7 @@
 
 
     var UDPserver = dgram.createSocket('udp4');
+    var lastGEMsg = '';
 
     UDPserver.on('listening', function() {
         var address = UDPserver.address();
@@ -134,27 +135,37 @@
 
     UDPserver.on('message', function(message, remote) {
 
-        var msgArray = String(message).split(',');
+	var msgString = String(message);
 
-        //if(clients[i]!=connection)
-        var lat = parseFloat(msgArray[1]);
-        var lon = parseFloat(msgArray[2]);
-        var alt = parseFloat(msgArray[3]);
-        var heading = parseFloat(msgArray[4]) * Math.PI / 180;
-        var pitch = (parseFloat(msgArray[5]) - 90) * Math.PI / 180;
-        var roll = parseFloat(msgArray[6]) * Math.PI / 180;
-	var msgToWSClients = new Message();
-	msgToWSClients.msgtype = "ge-cam";
-	msgToWSClients.lon = lon;
-	msgToWSClients.lat = lat;
-	msgToWSClients.ht = alt;
-	msgToWSClients.heading = heading;
-	msgToWSClients.pitch = pitch;
-	msgToWSClients.roll = roll;
+	// Avoids sending duplicate camera position
+	if (msgString != lastGEMsg) {
 
-        for (var i in wsClients) {
-            wsClients[i].send(msgToWSClients.toBuffer());
-        }
+		var msgArray = String(message).split(',');
+		var lastMsg = String(message);
+
+		//if(clients[i]!=connection)
+		var lat = parseFloat(msgArray[1]);
+		var lon = parseFloat(msgArray[2]);
+		var alt = parseFloat(msgArray[3]);
+		var heading = parseFloat(msgArray[4]) * Math.PI / 180;
+		var pitch = (parseFloat(msgArray[5]) - 90) * Math.PI / 180;
+		var roll = parseFloat(msgArray[6]) * Math.PI / 180;
+		var msgToWSClients = new Message();
+		msgToWSClients.msgtype = "ge-cam";
+		msgToWSClients.lon = lon;
+		msgToWSClients.lat = lat;
+		msgToWSClients.ht = alt;
+		msgToWSClients.heading = heading;
+		msgToWSClients.pitch = pitch;
+		msgToWSClients.roll = roll;
+
+		lastGEMsg = msgString;
+
+		for (var i in wsClients) {
+		    wsClients[i].send(msgToWSClients.toBuffer());
+		}
+
+	}
 
     });
 

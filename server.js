@@ -9,8 +9,8 @@
     var ProtoBuf = require("protobufjs");
     var path = require("path");
 
-    var builder = ProtoBuf.loadProtoFile(path.join(__dirname, "cesium.proto")),
-        Message = builder.build("Message");
+    var CesiumSync = ProtoBuf.loadProtoFile("cesiumsync.proto").build("CesiumSync");
+
 
 
     var server = http.createServer(function(req, res) {
@@ -75,7 +75,7 @@
             if (flags.binary) {
                 try {
                     // Decode the Message
-                    var msg = Message.decode(data);
+                    var msg = CesiumSync.decode(data);
                     console.log("Received: " + msg.msgtype);
                     //Broadcast camera properties to connected clients
                     for (var i in wsClients) {
@@ -150,7 +150,7 @@
 		var heading = parseFloat(msgArray[4]) * Math.PI / 180;
 		var pitch = (parseFloat(msgArray[5]) - 90) * Math.PI / 180;
 		var roll = parseFloat(msgArray[6]) * Math.PI / 180;
-		var msgToWSClients = new Message();
+		var msgToWSClients = new CesiumSync();
 		msgToWSClients.msgtype = "ge-cam";
 		msgToWSClients.lon = lon;
 		msgToWSClients.lat = lat;

@@ -22,7 +22,7 @@
         }
         // Initialize ProtoBuf.js
         var ProtoBuf = dcodeIO.ProtoBuf;
-        var Message = ProtoBuf.loadProtoFile("cesium.proto").build("Message");
+        var CesiumSync = ProtoBuf.loadProtoFile("cesiumsync.proto").build("CesiumSync");
     </script>
     <style>
         @import url("http://cesiumjs.org/releases/1.22.1/Build/Cesium/Widgets/widgets.css");
@@ -126,7 +126,7 @@
 
                 try {
                     // Decode the Message
-                    var msg = Message.decode(evt.data);
+                    var msg = CesiumSync.decode(evt.data);
 
                     if (msg.msgtype == "cam") {
                         console.log("Message-Type: Camera Update")

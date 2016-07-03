@@ -1,4 +1,4 @@
-message Message {
+message CesiumSync {
     required string msgtype = 1;
     optional double lon = 2;
     optional double lat = 3;

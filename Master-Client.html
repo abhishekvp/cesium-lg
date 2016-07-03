@@ -22,7 +22,7 @@
         }
         // Initialize ProtoBuf.js
         var ProtoBuf = dcodeIO.ProtoBuf;
-        var Message = ProtoBuf.loadProtoFile("cesium.proto").build("Message");
+        var CesiumSync = ProtoBuf.loadProtoFile("cesiumsync.proto").build("CesiumSync");
     </script>
     <style>
         @import url("http://cesiumjs.org/releases/1.22.1/Build/Cesium/Widgets/widgets.css");
@@ -72,7 +72,7 @@
                 console.log("Pitch:" + viewer.camera.pitch);
                 console.log("Roll:" + viewer.camera.roll);
 
-                var msg = new Message();
+                var msg = new CesiumSync();
                 msg.msgtype = "cam";
                 msg.lon = px;
                 msg.lat = py;
@@ -113,7 +113,7 @@
             viewer.scene.globe.enableLighting = document.getElementById("cmn-toggle-1").checked;
             console.log("Toggled Lighting");
             if (ws != undefined)
-                var msg = new Message();
+                var msg = new CesiumSync();
             msg.msgtype = "state";
             msg.lighting = viewer.scene.globe.enableLighting;
             ws.send(msg.toArrayBuffer());
@@ -133,16 +133,17 @@
         ws.onopen = function() {
             Cesium.requestAnimationFrame(getCam);
             //Sending the Initial State to all slaves
-            var msg = new Message();
+            var msg = new CesiumSync();
             msg.msgtype = "state";
             msg.lighting = viewer.scene.globe.enableLighting;
             ws.send(msg.toArrayBuffer());
 
             ws.onmessage = function(evt) {
 
+
                 try {
                     // Decode the Message
-                    var msg = Message.decode(evt.data);
+                    var msg = CesiumSync.decode(evt.data);
 
                     if (msg.msgtype == "cam") {
                         console.log("Message-Type: Camera Update")

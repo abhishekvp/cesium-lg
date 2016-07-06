@@ -59,16 +59,17 @@
     });
 
 
-    var count = 0;
+    var clientWSCount = 0, activeWSClientCount = 0;
     var wsClients = {};
 
     wsServer.on("connection", function(socket) { // Port 8081
 
-        //Keep count of all connected clients	
-        var id = count++;
+        //Keep count of all connected clients
+        var id = clientWSCount++;
+        activeWSClientCount++;
         //Store connection object for each of the clients
         wsClients[id] = socket;
-        console.log((new Date()) + ' Connection accepted [' + id + ']');
+        console.log((new Date()) + ' Connection accepted [' + id + '], Active clients '+ activeWSClientCount);
 
 
         //On receiving message (Camera Properties) from the Master
@@ -93,7 +94,8 @@
         });
         socket.on("close", function(reasonCode, description) {
             delete wsClients[id];
-            console.log((new Date()) + ' Peer ' + socket.remoteAddress + ' disconnected.');
+            activeWSClientCount--;
+            console.log((new Date()) + ' Peer ' + id + ' disconnected. Still have '+activeWSClientCount+' clients');
         })
     });
 

@@ -57,27 +57,26 @@
     <script>
         function getCam() {
             var camera = viewer.camera;
-            //var lon = Math.round(camera.positionCartographic['longitude'] * CONFIG.camSigFigures);
-            var px = Math.round(camera.position.x);
-            var py = Math.round(camera.position.y);
-            var pz = Math.round(camera.position.z);
-            var heading = Math.round(camera.heading * CONFIG.camSigFigures);
-            var pitch = Math.round(camera.pitch * CONFIG.camSigFigures);
-            var roll = Math.round(camera.roll * CONFIG.camSigFigures);
-            var camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            var lon = toDegrees(camera.positionCartographic['longitude']);
+            var lat = toDegrees(camera.positionCartographic['latitude']);
+            var alt = camera.positionCartographic['height'];
+            //var px = Math.round(camera.position.x);
+            //var py = Math.round(camera.position.y);
+            //var pz = Math.round(camera.position.z);
+            var heading = camera.heading;
+            var pitch = camera.pitch;
+            var roll = camera.roll;
+            var camStr = lon + ',' + lat + ',' + alt + ',' + heading + ',' + pitch + ',' + roll;
             if (camStr != lastCamStr) {
-                //console.log(camStr);
+                console.log(camStr);
                 lastCamStr = camStr;
-                console.log("Heading:" + viewer.camera.heading);
-                console.log("Pitch:" + viewer.camera.pitch);
-                console.log("Roll:" + viewer.camera.roll);
 
                 var sync = new CesiumSync();
 		// This is a Cesium Camera Position Sync Message
                 sync.msgtype = 1;
-                sync.lon = px;
-                sync.lat = py;
-                sync.ht = pz;
+                sync.lon = lon;
+                sync.lat = lat;
+                sync.ht = alt;
                 sync.heading = heading;
                 sync.pitch = pitch;
                 sync.roll = roll;
@@ -89,7 +88,7 @@
         }
 
 
-        function handleGECam(camVals) {
+        function handleCam(camVals) {
 
             var px = camVals.lon,
                 py = camVals.lat,
@@ -159,7 +158,7 @@
                         handleCam(sync);
                     } else if (sync.msgtype == 2) {
                         console.log("Message-Type: Google Earth Camera Update");
-                        handleGECam(sync);
+                        handleCam(sync);
 
                     } else {
                         console.log("Message-Type: State Update");

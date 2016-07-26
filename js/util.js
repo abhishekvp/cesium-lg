@@ -23,6 +23,10 @@
 	    return degrees * Math.PI / 180;
 	}
 
+	function toDegrees(radians) {
+	    return radians * 180 / Math.PI;
+	}
+
 
 	function getAspectRatio() {
 	var w = window.innerWidth

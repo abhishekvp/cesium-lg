@@ -47,45 +47,25 @@
             //var camVals = JSON.parse(camStr);
             var px = camVals.lon,
                 py = camVals.lat,
-                pz = camVals.ht,
-                heading = camVals.heading / CONFIG.camSigFigures;
-            pitch = camVals.pitch / CONFIG.camSigFigures;
-            roll = camVals.roll / CONFIG.camSigFigures,
+                pz = camVals.ht ,
+                heading = camVals.heading ;
+            pitch = camVals.pitch;
+            roll = camVals.roll,
+
                 camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({
-                destination: new Cesium.Cartesian3(px, py, pz),
+           destination: new Cesium.Cartesian3.fromDegrees(px, py,pz),
                 orientation: {
                     heading: heading,
                     pitch: pitch,
                     roll: roll
                 }
+                
             });
             viewer.camera.lookRight(yawRadians);
         }
 
-        function handleGECam(camVals) {
-
-            var px = camVals.lon,
-                py = camVals.lat,
-                pz = camVals.ht,
-                heading = camVals.heading;
-            pitch = camVals.pitch;
-            roll = camVals.roll;
-            camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
-            console.log(camStr);
-            viewer.camera.setView({
-                destination: new Cesium.Cartesian3.fromDegrees(px, py, pz),
-                orientation: {
-                    heading: heading,
-                    pitch: pitch,
-                    roll: roll
-                }
-            });
-
-
-            viewer.camera.lookRight(yawRadians);
-        }
 
         function handleStateChange(state) {
             viewer.scene.globe.enableLighting = state['lighting'];
@@ -139,7 +119,7 @@
                         handleCam(sync);
                     } else if (sync.msgtype == 2) {
                         console.log("Message-Type: Google Earth Camera Update");
-                        handleGECam(sync);
+                        handleCam(sync);
 
                     } else {
                         console.log("Message-Type: State Update");

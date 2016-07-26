@@ -129,7 +129,7 @@
 
 
     var UDPserver = dgram.createSocket('udp4');
-    var lastGESync = '';
+    var lastGESyncString = '';
 
     UDPserver.on('listening', function() {
         var address = UDPserver.address();
@@ -138,37 +138,29 @@
 
     UDPserver.on('message', function(message, remote) {
 
-	var syncString = String(message);
+        var viewsync = String(message).split(',');
 
-	// Avoids sending duplicate camera position
-	if (syncString != lastGESync) {
+        var s = new CesiumSync();
+        s.msgtype = 2;
+        s.lat = parseFloat(viewsync[1]) * 10e5;
+        s.lon = parseFloat(viewsync[2]) * 10e5;
+        s.ht = parseFloat(viewsync[3]) * 100;
+        s.heading = Math.round(util.toRadians(parseFloat(viewsync[4])) * 10e4);
+        s.pitch = Math.round(util.toRadians((parseFloat(viewsync[5]) - 90)) * 10e4);
+    s.roll = Math.round(util.toRadians(parseFloat(viewsync[6])) * 10e3);
 
-		var syncArray = syncString.split(',');
+    var syncString = s.lat+','+s.lon+','+s.alt+','+s.heading+','+s.pitch+','+s.roll;
 
-		var lat = parseFloat(syncArray[1]);
-		var lon = parseFloat(syncArray[2]);
-		var alt = parseFloat(syncArray[3]);
-		var heading = util.toRadians(parseFloat(syncArray[4]));
-		var pitch = util.toRadians((parseFloat(syncArray[5]) - 90));
-		var roll = util.toRadians(parseFloat(syncArray[6]));
-		var syncToWSClients = new CesiumSync();
-		// This is a Google Earth Camera Position Sync Message
-		syncToWSClients.msgtype = 2;
-		syncToWSClients.lon = lon;
-		syncToWSClients.lat = lat;
-		syncToWSClients.ht = alt;
-		syncToWSClients.heading = heading;
-		syncToWSClients.pitch = pitch;
-		syncToWSClients.roll = roll;
+    if (syncString != lastGESyncString) {
+        lastGESyncString = syncString;
+        var msg = s.toBuffer();
 
-		lastGESync = syncString;
+        for (var i in wsClients) {
+            wsClients[i].send(msg);
+        }
 
-		for (var i in wsClients) {
-		    wsClients[i].send(syncToWSClients.toBuffer());
-		}
-
-	}
-
+            // UDPclient.send(thisSync,0,thisSync.length,CONFIG.CesiumSyncPort,CONFIG.CesiumSyncHost);
+        }
     });
 
     UDPserver.bind(CONFIG.UDP_PORT, CONFIG.UDP_HOST);

@@ -57,15 +57,15 @@
     <script>
         function getCam() {
             var camera = viewer.camera;
-            var lon = toDegrees(camera.positionCartographic['longitude']);
-            var lat = toDegrees(camera.positionCartographic['latitude']);
-            var alt = camera.positionCartographic['height'];
+            var lon = toDegrees(camera.positionCartographic['longitude']) * 10e5;
+            var lat = toDegrees(camera.positionCartographic['latitude']) * 10e5;
+            var alt = camera.positionCartographic['height'] * 100;
             //var px = Math.round(camera.position.x);
             //var py = Math.round(camera.position.y);
             //var pz = Math.round(camera.position.z);
-            var heading = camera.heading;
-            var pitch = camera.pitch;
-            var roll = camera.roll;
+            var heading = camera.heading * 10e4;
+            var pitch = camera.pitch * 10e4;
+            var roll = camera.roll * 10e3;
             var camStr = lon + ',' + lat + ',' + alt + ',' + heading + ',' + pitch + ',' + roll;
             if (camStr != lastCamStr) {
                 console.log(camStr);
@@ -88,25 +88,28 @@
         }
 
 
-        function handleCam(camVals) {
+      function handleCam(camVals) {
 
-            var px = camVals.lon,
-                py = camVals.lat,
-                pz = camVals.ht,
-                heading = camVals.heading;
-            pitch = camVals.pitch;
-            roll = camVals.roll;
-            camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
+            //var camVals = JSON.parse(camStr);
+            var px = camVals.lon / 10e5,
+                py = camVals.lat / 10e5,
+                pz = camVals.ht / 100,
+                heading = camVals.heading / 10e4 ;
+            pitch = camVals.pitch / 10e4;
+            roll = camVals.roll / 10e3,
+
+                camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({
-                destination: new Cesium.Cartesian3.fromDegrees(px, py, pz),
+           destination: new Cesium.Cartesian3.fromDegrees(px, py,pz),
                 orientation: {
                     heading: heading,
                     pitch: pitch,
                     roll: roll
                 }
+                
             });
-            //viewer.camera.lookRight(yawRadians);
+            viewer.camera.lookRight(yawRadians);
         }
 
         function toggleLighting() {

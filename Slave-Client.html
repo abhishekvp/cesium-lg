@@ -45,12 +45,12 @@
         function handleCam(camVals) {
 
             //var camVals = JSON.parse(camStr);
-            var px = camVals.lon,
-                py = camVals.lat,
-                pz = camVals.ht ,
-                heading = camVals.heading ;
-            pitch = camVals.pitch;
-            roll = camVals.roll,
+            var px = camVals.lon / 10e5,
+                py = camVals.lat / 10e5,
+                pz = camVals.ht / 100,
+                heading = camVals.heading / 10e4 ;
+            pitch = camVals.pitch / 10e4;
+            roll = camVals.roll / 10e3,
 
                 camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
@@ -65,6 +65,7 @@
             });
             viewer.camera.lookRight(yawRadians);
         }
+
 
 
         function handleStateChange(state) {

@@ -41,8 +41,8 @@ border-bottom-right-radius:5px;
 padding: 5px;
 background: rgba(40, 40, 40, 0.85) none repeat scroll 0% 0%;
 color: #fff;
-height: 300px;
-max-height: 300px;
+
+
 }
 #cp_item{
 text-align:center;
@@ -82,7 +82,7 @@ margin-top:10px;
 margin-left:5px;
 position: absolute;
 z-index = 1;
-width: 220px;
+width: 260px;
 }
 #myButton {
 width:100%;
@@ -186,7 +186,12 @@ input.cmn-toggle-round1:checked + label:before {
 input.cmn-toggle-round1:checked + label:after {
   margin-left: 25px;
 }
+table {
+    table-layout:fixed;
+    width:100%;
+}
 
 td {
 padding:20px;
+overflow:hidden;
 }

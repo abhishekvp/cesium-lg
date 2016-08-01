@@ -56,6 +56,14 @@
                                 </div>
                             </td>
                         </tr>
+			<tr>
+			<td><b>Scene Mode</b></td><td>
+			<select id="sceneMode" onchange="changeSceneMode(this)">
+			  <option value="3D">3D</option>
+			  <option value="2D">2D</option>
+			  <option value="columbus">Columbus</option>
+			</select>
+			</td></tr>
 			<tr><td colspan=2><input style="width:95%; padding:3px; border-bottom-left-radius:5px;
 border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="reloadSlaves();"/></td></tr>
                     </table>
@@ -79,7 +87,7 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
             var roll = camera.roll * 10e3;
             var camStr = lon + ',' + lat + ',' + alt + ',' + heading + ',' + pitch + ',' + roll;
             if (camStr != lastCamStr) {
-                console.log(camStr);
+                //console.log(camStr);
                 lastCamStr = camStr;
 
                 var sync = new CesiumSync();
@@ -92,7 +100,7 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
                 sync.pitch = pitch;
                 sync.roll = roll;
                 ws.send(sync.toArrayBuffer());
-                console.log("Camera Properties sent!");
+                //console.log("Camera Properties sent!");
             }
 
             Cesium.requestAnimationFrame(getCam);
@@ -110,7 +118,7 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
             roll = camVals.roll / 10e3,
 
                 camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
-            console.log(camStr);
+            //console.log(camStr);
             viewer.camera.setView({
            destination: new Cesium.Cartesian3.fromDegrees(px, py,pz),
                 orientation: {
@@ -120,7 +128,7 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
                 }
                 
             });
-            viewer.camera.lookRight(yawRadians);
+            //viewer.camera.lookRight(yawRadians);
         }
 
         function toggleLighting() {
@@ -155,8 +163,42 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
 		ws.send(sync.toArrayBuffer());
 	}
 
+	function changeSceneMode(mode) {
+	   console.log("Scene Mode changed to:"+mode.value);
+	   var sceneMode = 0;
+	   if (mode.value == "2D") {
+		viewer.scene.morphTo2D();
+		sceneMode = 2;
+	   } else if (mode.value == "columbus") {
+		viewer.scene.morphToColumbusView();
+		sceneMode = 1;
+	   } else {
+		viewer.scene.morphTo3D();
+		sceneMode = 3;
+		console.log("In here");
+	  }
+            var sync = new CesiumSync();
+	    // Message Type 5 -> Scene Modes
+	    /*
+		Scene Modes
+		-----------
+		1 - Columbus View
+		2 - 2D
+		3 - 3d
+	    */
+            sync.msgtype = 5;
+	   sync.sceneMode = sceneMode;
+           if (ws != undefined)
+	   	ws.send(sync.toArrayBuffer());
+
+	}
+
         Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
-        var viewer = new Cesium.Viewer('cesiumContainer');
+        var viewer = new Cesium.Viewer('cesiumContainer',{
+    	sceneModePicker: false
+	});
+
+
         updateFOV();
         var lastCamStr = "";
 	var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, { binaryType: 'arraybuffer' } );

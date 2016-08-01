@@ -63,7 +63,9 @@
                 }
                 
             });
-            viewer.camera.lookRight(yawRadians);
+	    //Only look if the mode is 3D
+	    if (viewer.scene.mode==Cesium.SceneMode.SCENE3D)
+            	viewer.camera.lookRight(yawRadians);
         }
 
 
@@ -115,6 +117,7 @@
 		    msgtype = 2 --> Google Earth Camera Position Sync Message
 		    msgtype = 3 --> Cesium State Sync Message
 		    msgtype = 4 --> Slave FPS
+		    msgtype = 5 --> Scene Modes
 		    */   
 		    if (sync.msgtype == 0) {
                         console.log("Message-Type: Slave Reload Message Rxd");
@@ -129,8 +132,17 @@
                         console.log("Message-Type: State Update");
                         handleStateChange(sync);
                     } else if (sync.msgtype == 4) {
-                        console.log("Message-Type: Slave FPS Toggle Message Rxd");
+                        console.log("Message-Type: Slave FPS Toggle");
 			viewer.scene.debugShowFramesPerSecond = !(viewer.scene.debugShowFramesPerSecond);
+                    } else if (sync.msgtype == 5) {
+                        console.log("Message-Type: Scene Mode");
+			if (sync.sceneMode == 1) {
+				viewer.scene.morphToColumbusView();
+		   	} else if (sync.sceneMode == 2) {
+				viewer.scene.morphTo2D();
+		   	} else if (sync.sceneMode == 3) {
+				viewer.scene.morphTo3D();
+		   	} 
                     }
                 } catch (err) {
                      console.log("Error: " + err);

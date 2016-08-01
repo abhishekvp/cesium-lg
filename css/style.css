@@ -138,6 +138,55 @@ input.cmn-toggle-round:checked + label:after {
   margin-left: 25px;
 }
 
+.cmn-toggle1 {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+.cmn-toggle1 + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+input.cmn-toggle-round1 + label {
+  padding: 2px;
+  width: 50px;
+  height: 25px;
+  /*background-color: #dddddd;*/
+  border-radius: 25px;
+}
+input.cmn-toggle-round1 + label:before,
+input.cmn-toggle-round1 + label:after {
+  display: block;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  content: "";
+}
+input.cmn-toggle-round1 + label:before {
+  right: 1px;
+  background-color: #AAA;
+  border-radius: 25px;
+  transition: background 0.4s;
+}
+input.cmn-toggle-round1 + label:after {
+  width: 27px;
+  background-color: #fff;
+  border-radius: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: margin 0.4s;
+}
+input.cmn-toggle-round1:checked + label:before {
+  background-color: #3b5998;
+}
+input.cmn-toggle-round1:checked + label:after {
+  margin-left: 25px;
+}
+
 td {
 padding:20px;
 }

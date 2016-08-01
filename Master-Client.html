@@ -39,11 +39,20 @@
                 <div id="cp_list_items">
                     <table align="center">
                         <tr>
-                            <td><b>Lighting</b></td>
+                            <td><b>Toggle Lighting</b></td>
                             <td>
                                 <div class="switch">
                                     <input id="cmn-toggle-1" class="cmn-toggle cmn-toggle-round" type="checkbox" onclick="toggleLighting();">
-                                    <label for="cmn-toggle-1">Light</label>
+                                    <label for="cmn-toggle-1"></label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><b>Toggle Slave FPS</b></td>
+                            <td>
+                                <div class="switch1">
+                                    <input id="cmn-toggle-11" class="cmn-toggle cmn-toggle-round1" type="checkbox" onclick="toggleSlaveFPS();">
+                                    <label for="cmn-toggle-11"></label>
                                 </div>
                             </td>
                         </tr>
@@ -136,7 +145,14 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
             sync.msgtype = 0;
             if (ws != undefined)
 		ws.send(sync.toArrayBuffer());
+	}
 
+	function toggleSlaveFPS() {
+            var sync = new CesiumSync();
+	    // Message Type 4 -> Toggle Slave FPS
+            sync.msgtype = 4;
+            if (ws != undefined)
+		ws.send(sync.toArrayBuffer());
 	}
 
         Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
@@ -166,6 +182,7 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
 		    msgtype = 1 --> Cesium Camera Position Sync Message
 		    msgtype = 2 --> Google Earth Camera Position Sync Message
 		    msgtype = 3 --> Cesium State Sync Message
+		    msgtype = 4 --> Slave FPS
 		    */
 
                     if (sync.msgtype == 1) {

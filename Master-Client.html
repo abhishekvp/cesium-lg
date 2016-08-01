@@ -47,6 +47,8 @@
                                 </div>
                             </td>
                         </tr>
+			<tr><td colspan=2><input style="width:95%; padding:3px; border-bottom-left-radius:5px;
+border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="reloadSlaves();"/></td></tr>
                     </table>
                 </div>
             </p>
@@ -128,6 +130,15 @@
             viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV / getAspectRatio());
         }
 
+	function reloadSlaves() {
+            var sync = new CesiumSync();
+	    // Message Type 0 -> Reload Slaves
+            sync.msgtype = 0;
+            if (ws != undefined)
+		ws.send(sync.toArrayBuffer());
+
+	}
+
         Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
         var viewer = new Cesium.Viewer('cesiumContainer');
         updateFOV();
@@ -151,6 +162,7 @@
 
 		    /*
 		    Message Types:
+		    msgtype = 0 --> Slave Reload Message
 		    msgtype = 1 --> Cesium Camera Position Sync Message
 		    msgtype = 2 --> Google Earth Camera Position Sync Message
 		    msgtype = 3 --> Cesium State Sync Message

@@ -49,6 +49,7 @@ customContainer.appendChild(gui.domElement);
 
 var params = {
     lighting: false,
+    fog:true,
     fps:false,
     reloadSlaves:function(){ reloadSlaves(); },
     sceneMode: '3D'
@@ -59,6 +60,9 @@ var params = {
 
 gui.add(params, 'lighting').onFinishChange(function(){
 	toggleLighting();
+});
+gui.add(params, 'fog').onFinishChange(function(){
+	toggleFog();
 });
 gui.add(params, 'fps').onFinishChange(function(){
 	toggleSlaveFPS();
@@ -136,6 +140,18 @@ gui.add(params,'reloadSlaves');
             sync.lighting = viewer.scene.globe.enableLighting;
             ws.send(sync.toArrayBuffer());
         }
+
+        function toggleFog() {
+            viewer.scene.fog.enabled = !(viewer.scene.fog.enabled);
+            console.log("Toggled Fog");
+            if (ws != undefined)
+                var sync = new CesiumSync();
+	    // This is a Cesium State Sycn Message
+            sync.msgtype = 3;
+            sync.fog = viewer.scene.fog.enabled;
+            ws.send(sync.toArrayBuffer());
+        }
+
 
         function updateFOV() {
             console.log("Updating FOV for browser window size changed");

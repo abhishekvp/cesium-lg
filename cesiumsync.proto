@@ -7,5 +7,6 @@ message CesiumSync {
     optional double pitch = 6;
     optional double roll = 7;
     optional bool lighting = 8;
-    optional int32 sceneMode = 9;
+    optional bool fog = 9;
+    optional int32 sceneMode = 10;
 }

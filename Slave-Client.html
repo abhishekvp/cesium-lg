@@ -71,8 +71,10 @@
 
 
         function handleStateChange(state) {
+	    if(state.hasOwnProperty("lighting"))
             viewer.scene.globe.enableLighting = state['lighting'];
-
+	    if(state.hasOwnProperty("fog"))
+	    viewer.scene.fog.enabled = state['fog'];
         }
 
         function updateFOV() {

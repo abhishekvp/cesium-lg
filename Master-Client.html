@@ -16,6 +16,8 @@
     <script src="js/Long.min.js"></script>
     <script src="js/ByteBufferAB.min.js"></script>
     <script src="js/ProtoBuf.min.js"></script>
+    <script type='text/javascript' src='js/dat.gui.js'></script>
+
     <script>
         if (typeof dcodeIO === 'undefined' || !dcodeIO.ProtoBuf) {
             throw (new Error("ProtoBuf.js is not present. Please see www/index.html for manual setup instructions."));
@@ -31,49 +33,42 @@
 </head>
 
 <body onresize="updateFOV()">
+
     <div id="cp">
-        <div id="cp_head">
-            <h3>Control Panel</h3></div>
-        <div id="cp_list" class="scroll-pane horizontal-only">
-            <p>
-                <div id="cp_list_items">
-                    <table align="center">
-                        <tr>
-                            <td><b>Toggle Lighting</b></td>
-                            <td>
-                                <div class="switch">
-                                    <input id="cmn-toggle-1" class="cmn-toggle cmn-toggle-round" type="checkbox" onclick="toggleLighting();">
-                                    <label for="cmn-toggle-1"></label>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b>Toggle Slave FPS</b></td>
-                            <td>
-                                <div class="switch1">
-                                    <input id="cmn-toggle-11" class="cmn-toggle cmn-toggle-round1" type="checkbox" onclick="toggleSlaveFPS();">
-                                    <label for="cmn-toggle-11"></label>
-                                </div>
-                            </td>
-                        </tr>
-			<tr>
-			<td><b>Scene Mode</b></td><td>
-			<select id="sceneMode" onchange="changeSceneMode(this)">
-			  <option value="3D">3D</option>
-			  <option value="2D">2D</option>
-			  <option value="columbus">Columbus</option>
-			</select>
-			</td></tr>
-			<tr><td colspan=2><input style="width:95%; padding:3px; border-bottom-left-radius:5px;
-border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="reloadSlaves();"/></td></tr>
-                    </table>
-                </div>
-            </p>
-        </div>
 
     </div>
-    <div id="cesiumContainer"></div>
+ <div id="cesiumContainer"></div>
     <script>
+
+
+
+
+var gui = new dat.GUI( { autoPlace: false } );
+var customContainer = document.getElementById('cp');
+customContainer.appendChild(gui.domElement);
+
+var params = {
+    lighting: false,
+    fps:false,
+    reloadSlaves:function(){ reloadSlaves(); },
+    sceneMode: '3D'
+}
+
+
+
+
+gui.add(params, 'lighting').onFinishChange(function(){
+	toggleLighting();
+});
+gui.add(params, 'fps').onFinishChange(function(){
+	toggleSlaveFPS();
+});
+gui.add(params, 'sceneMode', [ '3D', '2D', 'columbus' ]).onFinishChange(function(){
+	changeSceneMode(params.sceneMode)
+});
+gui.add(params,'reloadSlaves');
+
+
         function getCam() {
             var camera = viewer.camera;
             var lon = toDegrees(camera.positionCartographic['longitude']) * 10e5;
@@ -132,7 +127,7 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
         }
 
         function toggleLighting() {
-            viewer.scene.globe.enableLighting = document.getElementById("cmn-toggle-1").checked;
+            viewer.scene.globe.enableLighting = !(viewer.scene.globe.enableLighting);
             console.log("Toggled Lighting");
             if (ws != undefined)
                 var sync = new CesiumSync();
@@ -166,10 +161,10 @@ border-bottom-right-radius:5px;"type="button" value= "Reload Slaves" onclick="re
 	function changeSceneMode(mode) {
 	   console.log("Scene Mode changed to:"+mode.value);
 	   var sceneMode = 0;
-	   if (mode.value == "2D") {
+	   if (mode == "2D") {
 		viewer.scene.morphTo2D();
 		sceneMode = 2;
-	   } else if (mode.value == "columbus") {
+	   } else if (mode == "columbus") {
 		viewer.scene.morphToColumbusView();
 		sceneMode = 1;
 	   } else {

@@ -8,16 +8,11 @@
             overflow: hidden;
 	  position:relative; z-index:-1;
         }
-#cp {
+	#cp {
+	margin-left:5px;
+	position: absolute;
+	z-index = 1;
+	}
 
-margin-left:5px;
-position: absolute;
-z-index = 1;
-width: 260px;
-}
-
-
-
-
-#gui {  top: 2px; left: 2px }
+	#gui {  top: 2px; left: 2px }
 

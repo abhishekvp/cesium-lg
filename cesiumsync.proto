@@ -8,5 +8,7 @@ message CesiumSync {
     optional double roll = 7;
     optional bool lighting = 8;
     optional bool fog = 9;
-    optional int32 sceneMode = 10;
+    optional string terrainProvider = 10;
+    optional string imageryProvider = 11;
+    optional int32 sceneMode = 12;
 }

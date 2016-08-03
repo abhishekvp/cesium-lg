@@ -48,39 +48,79 @@
             var px = camVals.lon / 10e5,
                 py = camVals.lat / 10e5,
                 pz = camVals.ht / 100,
-                heading = camVals.heading / 10e4 ;
+                heading = camVals.heading / 10e4;
             pitch = camVals.pitch / 10e4;
             roll = camVals.roll / 10e3,
 
                 camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             console.log(camStr);
             viewer.camera.setView({
-           destination: new Cesium.Cartesian3.fromDegrees(px, py,pz),
+                destination: new Cesium.Cartesian3.fromDegrees(px, py, pz),
                 orientation: {
                     heading: heading,
                     pitch: pitch,
                     roll: roll
                 }
-                
+
             });
-	    //Only look if the mode is 3D
-	    if (viewer.scene.mode==Cesium.SceneMode.SCENE3D)
-            	viewer.camera.lookRight(yawRadians);
+            //Only look if the mode is 3D
+            if (viewer.scene.mode == Cesium.SceneMode.SCENE3D)
+                viewer.camera.lookRight(yawRadians);
         }
 
 
 
         function handleStateChange(state) {
-	    if(state.hasOwnProperty("lighting"))
-            viewer.scene.globe.enableLighting = state['lighting'];
-	    if(state.hasOwnProperty("fog"))
-	    viewer.scene.fog.enabled = state['fog'];
+            console.log(state);
+            if (state["lighting"] != null) {
+                viewer.scene.globe.enableLighting = state['lighting'];
+                console.log("Hello");
+            } else if (state["fog"] != null) {
+                viewer.scene.fog.enabled = state['fog'];
+                console.log("Hello");
+            } else if (state["terrainProvider"] != null) {
+                console.log("Hello");
+                if (state['terrainProvider'] == 'STKWorld') {
+                    viewer.terrainProvider = cesiumTerrainProviderMeshes;
+                    console.log('STKWorldTerrain');
+                } else if (state['terrainProvider'] == 'Ellipsoid') {
+                    viewer.terrainProvider = ellipsoidProvider;
+                    console.log('ellipsoidProvider');
+                } else if (state['terrainProvider'] == 'VRTheWorld') {
+                    viewer.terrainProvider = vrTheWorldProvider;
+                    console.log('vrTheWorldProvider');
+                }
+            } else if (state["imageryProvider"] != null) {
+                console.log("Detected Imagery Change");
+
+                if (state['imageryProvider'] == 'BingMapsAerial') {
+                    console.log("Hello");
+                    imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                    imageryLayerCollection.addImageryProvider(bingMaps, 1);
+                    console.log('BingMaps');
+                } else if (state['imageryProvider'] == 'BingMapsRoads') {
+                    imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                    imageryLayerCollection.addImageryProvider(bingMapsRoads, 1);
+                    console.log('bingMapsRoads');
+                } else if (state['imageryProvider'] == 'ArcgisWorldStreet') {
+                    imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                    imageryLayerCollection.addImageryProvider(arcgisMaps, 1);
+                    console.log('arcgisMaps');
+                } else if (state['imageryProvider'] == 'BlackMarble') {
+                    imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                    imageryLayerCollection.addImageryProvider(blackMarble, 1);
+                    console.log('blackMarble');
+                }
+
+
+            }
         }
 
         function updateFOV() {
             console.log("Updating FOV for browser window size changed");
             viewer.camera.frustum.fov = toRadians(CONFIG.slaveHorizFOV / getAspectRatio());
         }
+
 
 
         Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
@@ -95,6 +135,34 @@
             scene3DOnly: true,
             navigationHelpButton: false
         });
+        var cesiumTerrainProviderMeshes = new Cesium.CesiumTerrainProvider({
+            url: 'https://assets.agi.com/stk-terrain/world',
+            requestWaterMask: true,
+            requestVertexNormals: true
+        });
+        var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
+
+        var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
+            url: 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
+            credit: 'Terrain data courtesy VT MÄK'
+        });
+
+        var bingMaps = new Cesium.BingMapsImageryProvider({
+            url: '//dev.virtualearth.net'
+        });
+        var bingMapsRoads = new Cesium.BingMapsImageryProvider({
+            url: 'https://dev.virtualearth.net',
+            mapStyle: Cesium.BingMapsStyle.ROAD
+        });
+        var arcgisMaps = new Cesium.ArcGisMapServerImageryProvider({
+            url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer'
+        });
+        var blackMarble = new Cesium.createTileMapServiceImageryProvider({
+            url: '//cesiumjs.org/tilesets/imagery/blackmarble',
+            maximumLevel: 8,
+            credit: 'Black Marble imagery courtesy NASA Earth Observatory'
+        });
+        var imageryLayerCollection = viewer.scene.imageryLayers;
         updateFOV();
         var yawDegrees = getParameterByName('yaw');
         var yawRadians = toRadians(yawDegrees);
@@ -102,7 +170,9 @@
 
 
 
-	var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, { binaryType: 'arraybuffer' } );
+        var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, {
+            binaryType: 'arraybuffer'
+        });
         ws.onopen = function() {
             console.log("WS Master-Slave Connection Achieved");
             ws.onmessage = function(evt) {
@@ -112,19 +182,19 @@
                     // Decode the Message
                     var sync = CesiumSync.decode(evt.data);
 
-		    /*
-		    Message Types:
-		    msgtype = 0 --> Slave Reload Message
-		    msgtype = 1 --> Cesium Camera Position Sync Message
-		    msgtype = 2 --> Google Earth Camera Position Sync Message
-		    msgtype = 3 --> Cesium State Sync Message
-		    msgtype = 4 --> Slave FPS
-		    msgtype = 5 --> Scene Modes
-		    */   
-		    if (sync.msgtype == 0) {
+                    /*
+                    Message Types:
+                    msgtype = 0 --> Slave Reload Message
+                    msgtype = 1 --> Cesium Camera Position Sync Message
+                    msgtype = 2 --> Google Earth Camera Position Sync Message
+                    msgtype = 3 --> Cesium State Sync Message
+                    msgtype = 4 --> Slave FPS
+                    msgtype = 5 --> Scene Modes
+                    */
+                    if (sync.msgtype == 0) {
                         console.log("Message-Type: Slave Reload Message Rxd");
-                        location.reload(true);              
-		    } else if (sync.msgtype == 1) {
+                        location.reload(true);
+                    } else if (sync.msgtype == 1) {
                         console.log("Message-Type: Cesium Camera Update")
                         handleCam(sync);
                     } else if (sync.msgtype == 2) {
@@ -135,19 +205,19 @@
                         handleStateChange(sync);
                     } else if (sync.msgtype == 4) {
                         console.log("Message-Type: Slave FPS Toggle");
-			viewer.scene.debugShowFramesPerSecond = !(viewer.scene.debugShowFramesPerSecond);
+                        viewer.scene.debugShowFramesPerSecond = !(viewer.scene.debugShowFramesPerSecond);
                     } else if (sync.msgtype == 5) {
                         console.log("Message-Type: Scene Mode");
-			if (sync.sceneMode == 1) {
-				viewer.scene.morphToColumbusView();
-		   	} else if (sync.sceneMode == 2) {
-				viewer.scene.morphTo2D();
-		   	} else if (sync.sceneMode == 3) {
-				viewer.scene.morphTo3D();
-		   	} 
+                        if (sync.sceneMode == 1) {
+                            viewer.scene.morphToColumbusView();
+                        } else if (sync.sceneMode == 2) {
+                            viewer.scene.morphTo2D();
+                        } else if (sync.sceneMode == 3) {
+                            viewer.scene.morphTo3D();
+                        }
                     }
                 } catch (err) {
-                     console.log("Error: " + err);
+                    console.log("Error: " + err);
                 }
             };
 

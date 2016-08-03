@@ -37,40 +37,49 @@
     <div id="cp">
 
     </div>
- <div id="cesiumContainer"></div>
+    <div id="cesiumContainer"></div>
     <script>
+        var gui = new dat.GUI({
+            autoPlace: false
+        });
+        var customContainer = document.getElementById('cp');
+        customContainer.appendChild(gui.domElement);
+
+        var params = {
+            lighting: false,
+            fog: true,
+            fps: false,
+            reloadSlaves: function() {
+                reloadSlaves();
+            },
+            sceneMode: '3D',
+            terrainProvider: 'Ellipsoid',
+            imageryProvider: 'BingMapsAerial'
+        }
 
 
 
 
-var gui = new dat.GUI( { autoPlace: false } );
-var customContainer = document.getElementById('cp');
-customContainer.appendChild(gui.domElement);
+        gui.add(params, 'lighting').onFinishChange(function() {
+            toggleLighting();
+        });
+        gui.add(params, 'fog').onFinishChange(function() {
+            toggleFog();
+        });
+        gui.add(params, 'fps').onFinishChange(function() {
+            toggleSlaveFPS();
+        });
+        gui.add(params, 'terrainProvider', ['STKWorld', 'Ellipsoid', 'VRTheWorld']).onFinishChange(function() {
+            changeTerrainProvider(params.terrainProvider)
+        });
+        gui.add(params, 'imageryProvider', ['BingMapsAerial', 'BingMapsRoads', 'ArcgisWorldStreet', 'BlackMarble']).onFinishChange(function() {
+            changeImageryProvider(params.imageryProvider)
+        });
+        gui.add(params, 'sceneMode', ['3D', '2D', 'columbus']).onFinishChange(function() {
+            changeSceneMode(params.sceneMode)
+        });
+        gui.add(params, 'reloadSlaves');
 
-var params = {
-    lighting: false,
-    fog:true,
-    fps:false,
-    reloadSlaves:function(){ reloadSlaves(); },
-    sceneMode: '3D'
-}
-
-
-
-
-gui.add(params, 'lighting').onFinishChange(function(){
-	toggleLighting();
-});
-gui.add(params, 'fog').onFinishChange(function(){
-	toggleFog();
-});
-gui.add(params, 'fps').onFinishChange(function(){
-	toggleSlaveFPS();
-});
-gui.add(params, 'sceneMode', [ '3D', '2D', 'columbus' ]).onFinishChange(function(){
-	changeSceneMode(params.sceneMode)
-});
-gui.add(params,'reloadSlaves');
 
 
         function getCam() {
@@ -90,7 +99,7 @@ gui.add(params,'reloadSlaves');
                 lastCamStr = camStr;
 
                 var sync = new CesiumSync();
-		// This is a Cesium Camera Position Sync Message
+                // This is a Cesium Camera Position Sync Message
                 sync.msgtype = 1;
                 sync.lon = lon;
                 sync.lat = lat;
@@ -106,26 +115,26 @@ gui.add(params,'reloadSlaves');
         }
 
 
-      function handleCam(camVals) {
+        function handleCam(camVals) {
 
             //var camVals = JSON.parse(camStr);
             var px = camVals.lon / 10e5,
                 py = camVals.lat / 10e5,
                 pz = camVals.ht / 100,
-                heading = camVals.heading / 10e4 ;
+                heading = camVals.heading / 10e4;
             pitch = camVals.pitch / 10e4;
             roll = camVals.roll / 10e3,
 
                 camStr = px + ',' + py + ',' + pz + ',' + heading + ',' + pitch + ',' + roll;
             //console.log(camStr);
             viewer.camera.setView({
-           destination: new Cesium.Cartesian3.fromDegrees(px, py,pz),
+                destination: new Cesium.Cartesian3.fromDegrees(px, py, pz),
                 orientation: {
                     heading: heading,
                     pitch: pitch,
                     roll: roll
                 }
-                
+
             });
             //viewer.camera.lookRight(yawRadians);
         }
@@ -135,7 +144,7 @@ gui.add(params,'reloadSlaves');
             console.log("Toggled Lighting");
             if (ws != undefined)
                 var sync = new CesiumSync();
-	    // This is a Cesium State Sycn Message
+            // This is a Cesium State Sycn Message
             sync.msgtype = 3;
             sync.lighting = viewer.scene.globe.enableLighting;
             ws.send(sync.toArrayBuffer());
@@ -144,12 +153,13 @@ gui.add(params,'reloadSlaves');
         function toggleFog() {
             viewer.scene.fog.enabled = !(viewer.scene.fog.enabled);
             console.log("Toggled Fog");
-            if (ws != undefined)
+            if (ws != undefined) {
                 var sync = new CesiumSync();
-	    // This is a Cesium State Sycn Message
-            sync.msgtype = 3;
-            sync.fog = viewer.scene.fog.enabled;
-            ws.send(sync.toArrayBuffer());
+                // This is a Cesium State Sycn Message
+                sync.msgtype = 3;
+                sync.fog = viewer.scene.fog.enabled;
+                ws.send(sync.toArrayBuffer());
+            }
         }
 
 
@@ -158,39 +168,39 @@ gui.add(params,'reloadSlaves');
             viewer.camera.frustum.fov = toRadians(CONFIG.masterHorizFOV / getAspectRatio());
         }
 
-	function reloadSlaves() {
+        function reloadSlaves() {
             var sync = new CesiumSync();
-	    // Message Type 0 -> Reload Slaves
+            // Message Type 0 -> Reload Slaves
             sync.msgtype = 0;
             if (ws != undefined)
-		ws.send(sync.toArrayBuffer());
-	}
+                ws.send(sync.toArrayBuffer());
+        }
 
-	function toggleSlaveFPS() {
+        function toggleSlaveFPS() {
             var sync = new CesiumSync();
-	    // Message Type 4 -> Toggle Slave FPS
+            // Message Type 4 -> Toggle Slave FPS
             sync.msgtype = 4;
             if (ws != undefined)
-		ws.send(sync.toArrayBuffer());
-	}
+                ws.send(sync.toArrayBuffer());
+        }
 
-	function changeSceneMode(mode) {
-	   console.log("Scene Mode changed to:"+mode.value);
-	   var sceneMode = 0;
-	   if (mode == "2D") {
-		viewer.scene.morphTo2D();
-		sceneMode = 2;
-	   } else if (mode == "columbus") {
-		viewer.scene.morphToColumbusView();
-		sceneMode = 1;
-	   } else {
-		viewer.scene.morphTo3D();
-		sceneMode = 3;
-		console.log("In here");
-	  }
+        function changeSceneMode(mode) {
+            console.log("Scene Mode changed to:" + mode.value);
+            var sceneMode = 0;
+            if (mode == "2D") {
+                viewer.scene.morphTo2D();
+                sceneMode = 2;
+            } else if (mode == "columbus") {
+                viewer.scene.morphToColumbusView();
+                sceneMode = 1;
+            } else {
+                viewer.scene.morphTo3D();
+                sceneMode = 3;
+                console.log("In here");
+            }
             var sync = new CesiumSync();
-	    // Message Type 5 -> Scene Modes
-	    /*
+            // Message Type 5 -> Scene Modes
+            /*
 		Scene Modes
 		-----------
 		1 - Columbus View
@@ -198,29 +208,106 @@ gui.add(params,'reloadSlaves');
 		3 - 3d
 	    */
             sync.msgtype = 5;
-	   sync.sceneMode = sceneMode;
-           if (ws != undefined)
-	   	ws.send(sync.toArrayBuffer());
+            sync.sceneMode = sceneMode;
+            if (ws != undefined)
+                ws.send(sync.toArrayBuffer());
 
-	}
+        }
+
+        function changeTerrainProvider(selectedTerrainProvider) {
+            if (selectedTerrainProvider == 'STKWorld') {
+                viewer.terrainProvider = cesiumTerrainProviderMeshes;
+                console.log('STKWorldTerrain');
+            } else if (selectedTerrainProvider == 'Ellipsoid') {
+                viewer.terrainProvider = ellipsoidProvider;
+                console.log('ellipsoidProvider');
+            } else if (selectedTerrainProvider == 'VRTheWorld') {
+                viewer.terrainProvider = vrTheWorldProvider;
+                console.log('vrTheWorldProvider');
+            }
+            if (ws != undefined) {
+                var sync = new CesiumSync();
+                // This is a Cesium State Sycn Message
+                sync.msgtype = 3;
+                sync.terrainProvider = selectedTerrainProvider;
+                ws.send(sync.toArrayBuffer());
+            }
+        }
+
+
+
+        function changeImageryProvider(selectedImageryProvider) {
+
+            if (selectedImageryProvider == 'BingMapsAerial') {
+
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(bingMaps, 1);
+                console.log('BingMaps');
+            } else if (selectedImageryProvider == 'BingMapsRoads') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(bingMapsRoads, 1);
+                console.log('bingMapsRoads');
+            } else if (selectedImageryProvider == 'ArcgisWorldStreet') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(arcgisMaps, 1);
+                console.log('arcgisMaps');
+            } else if (selectedImageryProvider == 'BlackMarble') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(blackMarble, 1);
+                console.log('blackMarble');
+            }
+            if (ws != undefined) {
+                var sync = new CesiumSync();
+                // This is a Cesium State Sycn Message
+                sync.msgtype = 3;
+                sync.imageryProvider = selectedImageryProvider;
+                ws.send(sync.toArrayBuffer());
+            }
+        }
 
         Cesium.BingMapsApi.defaultKey = CONFIG.BingMapsKey;
-        var viewer = new Cesium.Viewer('cesiumContainer',{
-    	sceneModePicker: false
-	});
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            sceneModePicker: false
+        });
 
+        var cesiumTerrainProviderMeshes = new Cesium.CesiumTerrainProvider({
+            url: 'https://assets.agi.com/stk-terrain/world',
+            requestWaterMask: true,
+            requestVertexNormals: true
+        });
+        var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
+
+        var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
+            url: 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
+            credit: 'Terrain data courtesy VT MÄK'
+        });
+
+        var bingMaps = new Cesium.BingMapsImageryProvider({
+            url: '//dev.virtualearth.net'
+        });
+        var bingMapsRoads = new Cesium.BingMapsImageryProvider({
+            url: 'https://dev.virtualearth.net',
+            mapStyle: Cesium.BingMapsStyle.ROAD
+        });
+        var arcgisMaps = new Cesium.ArcGisMapServerImageryProvider({
+            url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer'
+        });
+        var blackMarble = new Cesium.createTileMapServiceImageryProvider({
+            url: '//cesiumjs.org/tilesets/imagery/blackmarble',
+            maximumLevel: 8,
+            credit: 'Black Marble imagery courtesy NASA Earth Observatory'
+        });
+
+        var imageryLayerCollection = viewer.scene.imageryLayers;
 
         updateFOV();
         var lastCamStr = "";
-	var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, { binaryType: 'arraybuffer' } );
+        var ws = new ReconnectingWebSocket(CONFIG.wsURI, null, {
+            binaryType: 'arraybuffer'
+        });
         ws.onopen = function() {
             Cesium.requestAnimationFrame(getCam);
-            //Sending the Initial State to all slaves
-            var sync = new CesiumSync();
-	    // This is a Cesium State Sync Message
-            sync.msgtype = 3;
-            sync.lighting = viewer.scene.globe.enableLighting;
-            ws.send(sync.toArrayBuffer());
+
 
             ws.onmessage = function(evt) {
 
@@ -229,14 +316,14 @@ gui.add(params,'reloadSlaves');
                     // Decode the Message
                     var sync = CesiumSync.decode(evt.data);
 
-		    /*
-		    Message Types:
-		    msgtype = 0 --> Slave Reload Message
-		    msgtype = 1 --> Cesium Camera Position Sync Message
-		    msgtype = 2 --> Google Earth Camera Position Sync Message
-		    msgtype = 3 --> Cesium State Sync Message
-		    msgtype = 4 --> Slave FPS
-		    */
+                    /*
+                    Message Types:
+                    msgtype = 0 --> Slave Reload Message
+                    msgtype = 1 --> Cesium Camera Position Sync Message
+                    msgtype = 2 --> Google Earth Camera Position Sync Message
+                    msgtype = 3 --> Cesium State Sync Message
+                    msgtype = 4 --> Slave FPS
+                    */
 
                     if (sync.msgtype == 1) {
                         console.log("Message-Type: Cesium Camera Update")
@@ -250,7 +337,7 @@ gui.add(params,'reloadSlaves');
                         handleStateChange(sync);
                     }
                 } catch (err) {
-                     console.log("Error: " + err);
+                    console.log("Error: " + err);
                 }
             };
 

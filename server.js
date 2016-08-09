@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    var CONFIG = require('./js/node-config.js');
+    var CONFIG = require('./node-config.js');
     var util = require('./js/node-util.js');
     var http = require('http');
     var dgram = require('dgram');

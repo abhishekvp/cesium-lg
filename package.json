@@ -33,6 +33,7 @@
     "express": "4.13.4",
     "protobufjs":"*",
     "request": "2.69.0",
+    "websocket":"*",
     "ws":"*"
   },
   "scripts": {

@@ -98,7 +98,11 @@
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(bingMaps, 1);
                     console.log('BingMaps');
-                } else if (state['imageryProvider'] == 'BingMapsRoads') {
+                } else if (state['imageryProvider']  == 'BingMapsAerialWithLabels') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(bingMapsAerialWithLabels, 1);
+                console.log('bingMapsAerialWithLabels');
+            	} else if (state['imageryProvider'] == 'BingMapsRoads') {
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(bingMapsRoads, 1);
                     console.log('bingMapsRoads');
@@ -150,6 +154,10 @@
         var bingMaps = new Cesium.BingMapsImageryProvider({
             url: '//dev.virtualearth.net'
         });
+	var bingMapsAerialWithLabels = new Cesium.BingMapsImageryProvider({
+	    url: 'http://dev.virtualearth.net',
+	    mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS
+	});
         var bingMapsRoads = new Cesium.BingMapsImageryProvider({
             url: 'https://dev.virtualearth.net',
             mapStyle: Cesium.BingMapsStyle.ROAD

@@ -72,7 +72,7 @@
         gui.add(params, 'terrainProvider', ['STKWorld', 'Ellipsoid', 'VRTheWorld']).onFinishChange(function() {
             changeTerrainProvider(params.terrainProvider)
         });
-        gui.add(params, 'imageryProvider', ['BingMapsAerial', 'BingMapsRoads', 'ArcgisWorldStreet', 'BlackMarble']).onFinishChange(function() {
+        gui.add(params, 'imageryProvider', ['BingMapsAerial', 'BingMapsAerialWithLabels', 'BingMapsRoads', 'ArcgisWorldStreet', 'BlackMarble']).onFinishChange(function() {
             changeImageryProvider(params.imageryProvider)
         });
         gui.add(params, 'sceneMode', ['3D', '2D', 'columbus']).onFinishChange(function() {
@@ -243,7 +243,11 @@
                 imageryLayerCollection.remove(imageryLayerCollection.get(0));
                 imageryLayerCollection.addImageryProvider(bingMaps, 1);
                 console.log('BingMaps');
-            } else if (selectedImageryProvider == 'BingMapsRoads') {
+            } else if (selectedImageryProvider == 'BingMapsAerialWithLabels') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(bingMapsAerialWithLabels, 1);
+                console.log('bingMapsAerialWithLabels');
+            }else if (selectedImageryProvider == 'BingMapsRoads') {
                 imageryLayerCollection.remove(imageryLayerCollection.get(0));
                 imageryLayerCollection.addImageryProvider(bingMapsRoads, 1);
                 console.log('bingMapsRoads');
@@ -285,8 +289,13 @@
         var bingMaps = new Cesium.BingMapsImageryProvider({
             url: '//dev.virtualearth.net'
         });
+	var bingMapsAerialWithLabels = new Cesium.BingMapsImageryProvider({
+	    url: 'http://dev.virtualearth.net',
+	    mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS
+	});
+
         var bingMapsRoads = new Cesium.BingMapsImageryProvider({
-            url: 'https://dev.virtualearth.net',
+            url: 'http://dev.virtualearth.net',
             mapStyle: Cesium.BingMapsStyle.ROAD
         });
         var arcgisMaps = new Cesium.ArcGisMapServerImageryProvider({

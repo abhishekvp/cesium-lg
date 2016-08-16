@@ -72,7 +72,7 @@
         gui.add(params, 'terrainProvider', ['STKWorld', 'Ellipsoid', 'VRTheWorld']).onFinishChange(function() {
             changeTerrainProvider(params.terrainProvider)
         });
-        gui.add(params, 'imageryProvider', ['BingMapsAerial', 'BingMapsAerialWithLabels', 'BingMapsRoads', 'ArcgisWorldStreet', 'BlackMarble']).onFinishChange(function() {
+        gui.add(params, 'imageryProvider', ['BingMapsAerial', 'BingMapsAerialWithLabels', 'BingMapsRoads', 'ArcgisWorldStreet', 'BlackMarble', 'GridImageryProvider']).onFinishChange(function() {
             changeImageryProvider(params.imageryProvider)
         });
         gui.add(params, 'sceneMode', ['3D', '2D', 'columbus']).onFinishChange(function() {
@@ -239,7 +239,6 @@
         function changeImageryProvider(selectedImageryProvider) {
 
             if (selectedImageryProvider == 'BingMapsAerial') {
-
                 imageryLayerCollection.remove(imageryLayerCollection.get(0));
                 imageryLayerCollection.addImageryProvider(bingMaps, 1);
                 console.log('BingMaps');
@@ -259,6 +258,10 @@
                 imageryLayerCollection.remove(imageryLayerCollection.get(0));
                 imageryLayerCollection.addImageryProvider(blackMarble, 1);
                 console.log('blackMarble');
+            } else if (selectedImageryProvider == 'GridImageryProvider') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(GridImageryProvider, 1);
+                console.log('GridImageryProvider');
             }
             if (ws != undefined) {
                 var sync = new CesiumSync();
@@ -279,6 +282,9 @@
             requestWaterMask: true,
             requestVertexNormals: true
         });
+
+
+
         var ellipsoidProvider = new Cesium.EllipsoidTerrainProvider();
 
         var vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
@@ -298,6 +304,8 @@
             url: 'http://dev.virtualearth.net',
             mapStyle: Cesium.BingMapsStyle.ROAD
         });
+	var GridImageryProvider = new Cesium.GridImageryProvider({cells:8, glowWidth:0});
+
         var arcgisMaps = new Cesium.ArcGisMapServerImageryProvider({
             url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer'
         });

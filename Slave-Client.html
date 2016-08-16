@@ -114,7 +114,11 @@
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(blackMarble, 1);
                     console.log('blackMarble');
-                }
+                } else if (state['imageryProvider'] == 'GridImageryProvider') {
+                imageryLayerCollection.remove(imageryLayerCollection.get(0));
+                imageryLayerCollection.addImageryProvider(GridImageryProvider, 1);
+                console.log('GridImageryProvider');
+            }
 
 
             }
@@ -170,6 +174,8 @@
             maximumLevel: 8,
             credit: 'Black Marble imagery courtesy NASA Earth Observatory'
         });
+	var GridImageryProvider = new Cesium.GridImageryProvider({cells:8, glowWidth:0});
+
         var imageryLayerCollection = viewer.scene.imageryLayers;
         updateFOV();
         var yawDegrees = getParameterByName('yaw');

@@ -197,6 +197,7 @@
                 viewer.scene.morphTo3D();
                 sceneMode = 3;
                 console.log("In here");
+		updateFOV();
             }
             var sync = new CesiumSync();
             // Message Type 5 -> Scene Modes
@@ -359,6 +360,10 @@
             };
 
         }
+viewer.scene.morphComplete.addEventListener(function (){
+console.log("morph completed");
+updateFOV();
+});
     </script>
 </body>
 

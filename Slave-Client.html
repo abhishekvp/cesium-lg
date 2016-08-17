@@ -228,6 +228,7 @@
                             viewer.scene.morphTo2D();
                         } else if (sync.sceneMode == 3) {
                             viewer.scene.morphTo3D();
+			    updateFOV();
                         }
                     }
                 } catch (err) {
@@ -239,6 +240,11 @@
 
 
         }
+
+viewer.scene.morphComplete.addEventListener(function (){
+console.log("morph completed");
+updateFOV();
+});
     </script>
 </body>
 

@@ -108,7 +108,7 @@
                 sync.pitch = pitch;
                 sync.roll = roll;
                 ws.send(sync.toArrayBuffer());
-                //console.log("Camera Properties sent!");
+                console.log("Camera Properties sent!");
             }
 
             Cesium.requestAnimationFrame(getCam);
@@ -178,8 +178,9 @@
 
         function toggleSlaveFPS() {
             var sync = new CesiumSync();
-            // Message Type 4 -> Toggle Slave FPS
-            sync.msgtype = 4;
+            // Message Type 3 -> State
+            sync.msgtype = 3;
+	    sync.slaveFPS = true;
             if (ws != undefined)
                 ws.send(sync.toArrayBuffer());
         }
@@ -200,7 +201,7 @@
 		updateFOV();
             }
             var sync = new CesiumSync();
-            // Message Type 5 -> Scene Modes
+            // Message Type 3 -> Scene Modes
             /*
 		Scene Modes
 		-----------
@@ -208,7 +209,7 @@
 		2 - 2D
 		3 - 3d
 	    */
-            sync.msgtype = 5;
+            sync.msgtype = 3;
             sync.sceneMode = sceneMode;
             if (ws != undefined)
                 ws.send(sync.toArrayBuffer());
@@ -340,7 +341,7 @@
                     msgtype = 1 --> Cesium Camera Position Sync Message
                     msgtype = 2 --> Google Earth Camera Position Sync Message
                     msgtype = 3 --> Cesium State Sync Message
-                    msgtype = 4 --> Slave FPS
+       
                     */
 
                     if (sync.msgtype == 1) {

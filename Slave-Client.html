@@ -75,22 +75,25 @@
             if (state["lighting"] != null) {
                 viewer.scene.globe.enableLighting = state['lighting'];
                 console.log("Hello");
-            } else if (state["fog"] != null) {
+            } 
+	if (state["fog"] != null) {
                 viewer.scene.fog.enabled = state['fog'];
                 console.log("Hello");
-            } else if (state["terrainProvider"] != null) {
+            } 
+	 if (state["terrainProvider"] != null) {
                 console.log("Hello");
                 if (state['terrainProvider'] == 'STKWorld') {
                     viewer.terrainProvider = cesiumTerrainProviderMeshes;
                     console.log('STKWorldTerrain');
-                } else if (state['terrainProvider'] == 'Ellipsoid') {
+                }  if (state['terrainProvider'] == 'Ellipsoid') {
                     viewer.terrainProvider = ellipsoidProvider;
                     console.log('ellipsoidProvider');
-                } else if (state['terrainProvider'] == 'VRTheWorld') {
+                }  if (state['terrainProvider'] == 'VRTheWorld') {
                     viewer.terrainProvider = vrTheWorldProvider;
                     console.log('vrTheWorldProvider');
                 }
-            } else if (state["imageryProvider"] != null) {
+}
+             if (state["imageryProvider"] != null) {
                 console.log("Detected Imagery Change");
 
                 if (state['imageryProvider'] == 'BingMapsAerial') {
@@ -98,33 +101,33 @@
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(bingMaps, 1);
                     console.log('BingMaps');
-                } else if (state['imageryProvider']  == 'BingMapsAerialWithLabels') {
+                }  if (state['imageryProvider']  == 'BingMapsAerialWithLabels') {
                 imageryLayerCollection.remove(imageryLayerCollection.get(0));
                 imageryLayerCollection.addImageryProvider(bingMapsAerialWithLabels, 1);
                 console.log('bingMapsAerialWithLabels');
-            	} else if (state['imageryProvider'] == 'BingMapsRoads') {
+            	}  if (state['imageryProvider'] == 'BingMapsRoads') {
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(bingMapsRoads, 1);
                     console.log('bingMapsRoads');
-                } else if (state['imageryProvider'] == 'ArcgisWorldStreet') {
+                }  if (state['imageryProvider'] == 'ArcgisWorldStreet') {
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(arcgisMaps, 1);
                     console.log('arcgisMaps');
-                } else if (state['imageryProvider'] == 'BlackMarble') {
+                }  if (state['imageryProvider'] == 'BlackMarble') {
                     imageryLayerCollection.remove(imageryLayerCollection.get(0));
                     imageryLayerCollection.addImageryProvider(blackMarble, 1);
                     console.log('blackMarble');
-                } else if (state['imageryProvider'] == 'GridImageryProvider') {
+                }  if (state['imageryProvider'] == 'GridImageryProvider') {
                 imageryLayerCollection.remove(imageryLayerCollection.get(0));
                 imageryLayerCollection.addImageryProvider(GridImageryProvider, 1);
                 console.log('GridImageryProvider');
             }
+}
 
-
-            } else if (state["slaveFPS"]!=null) {
+              if (state["slaveFPS"]!=null) {
 		console.log("InSlaveFPS");
                 viewer.scene.debugShowFramesPerSecond = !(viewer.scene.debugShowFramesPerSecond);
-	    } else if(state["sceneMode"]!=null) {
+	    }  if(state["sceneMode"]!=null) {
                    if (state["sceneMode"] == 1) {
                             viewer.scene.morphToColumbusView();
                         } else if (state["sceneMode"] == 2) {

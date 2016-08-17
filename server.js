@@ -27,6 +27,12 @@
     var clientWSCount = 0, activeWSClientCount = 0;
     var wsClients = {};
 
+    //Preserving State
+    var state_sync = new CesiumSync();
+    var camera_sync = new CesiumSync();
+    state_sync.msgtype = 3;
+    camera_sync.msgtype = 1;
+
     wsServer.on("connection", function(socket) { // Port 8081
 
         //Keep count of all connected clients
@@ -35,7 +41,11 @@
         //Store connection object for each of the clients
         wsClients[id] = socket;
         console.log((new Date()) + ' Connection accepted [' + id + '], Active clients '+ activeWSClientCount);
-
+	if(activeWSClientCount>1) {
+	    console.log("Slave Connected. Sending Preserved State to Slave.");
+            wsClients[id].send(camera_sync.toBuffer());
+            wsClients[id].send(state_sync.toBuffer());
+	}
 
         //On receiving message (Camera Properties) from the Master
         socket.on("message", function(data, flags) {
@@ -49,6 +59,26 @@
                         if (wsClients[i] != socket)
                             wsClients[i].send(sync.toBuffer());
                     }
+		
+		   //Update Preserved State
+		    if(sync.msgtype!=3)
+			camera_sync = sync;
+		    else {
+			
+			if(sync.lighting!=null)
+				state_sync.lighting = sync.lighting;
+			if(sync.fog!=null)
+				state_sync.fog = sync.fog;
+			if(sync.terrainProvider!=null)
+				state_sync.terrainProvider = sync.terrainProvider;
+			if(sync.imageryProvider!=null)
+				state_sync.imageryProvider = sync.imageryProvider;
+			if(sync.sceneMode!=null)
+				state_sync.sceneMode = sync.sceneMode;
+			if(sync.slaveFPS!=null)
+				state_sync.slaveFPS = sync.slaveFPS;
+
+		    }	
 
                 } catch (err) {
                     console.log("Processing failed:", err);

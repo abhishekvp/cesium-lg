@@ -6,5 +6,6 @@ var CONFIG = {
     BingMapsKey: 'YOUR BING MAPS API KEY',
     slaveHorizFOV: 60,
     masterHorizFOV: 60,
+    defaultViewFactor: -0.4
 };
 

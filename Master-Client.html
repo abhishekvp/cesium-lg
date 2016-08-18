@@ -57,7 +57,7 @@
             imageryProvider: 'BingMapsAerial'
         }
 
-
+        var slaveFPS = false;
 
 
         gui.add(params, 'lighting').onFinishChange(function() {
@@ -171,6 +171,7 @@
         function reloadSlaves() {
             var sync = new CesiumSync();
             // Message Type 0 -> Reload Slaves
+            console.log("Reloaded Slaves");
             sync.msgtype = 0;
             if (ws != undefined)
                 ws.send(sync.toArrayBuffer());
@@ -180,7 +181,8 @@
             var sync = new CesiumSync();
             // Message Type 3 -> State
             sync.msgtype = 3;
-	    sync.slaveFPS = true;
+            slaveFPS = !slaveFPS;
+	    sync.slaveFPS = slaveFPS;
             if (ws != undefined)
                 ws.send(sync.toArrayBuffer());
         }

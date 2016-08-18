@@ -43,9 +43,11 @@
         console.log((new Date()) + ' Connection accepted [' + id + '], Active clients '+ activeWSClientCount);
 	if(activeWSClientCount>1) {
 	    console.log("Slave Connected. Sending Preserved State to Slave.");
+            if(camera_sync.msgtype && state_sync.msgtype) {
             wsClients[id].send(camera_sync.toBuffer());
             wsClients[id].send(state_sync.toBuffer());
-	}
+            }
+	} 
 
         //On receiving message (Camera Properties) from the Master
         socket.on("message", function(data, flags) {
@@ -61,9 +63,9 @@
                     }
 		
 		   //Update Preserved State
-		    if(sync.msgtype!=3)
+		    if(sync.msgtype==1 || sync.msgtype ==2)
 			camera_sync = sync;
-		    else {
+		    else if(sync.msgtype ==3){
 			
 			if(sync.lighting!=null)
 				state_sync.lighting = sync.lighting;

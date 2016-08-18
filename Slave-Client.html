@@ -125,8 +125,8 @@
 }
 
               if (state["slaveFPS"]!=null) {
-		console.log("InSlaveFPS");
-                viewer.scene.debugShowFramesPerSecond = !(viewer.scene.debugShowFramesPerSecond);
+		        console.log("InSlaveFPS:" + state["slaveFPS"]);
+                viewer.scene.debugShowFramesPerSecond = state["slaveFPS"];
 	    }  if(state["sceneMode"]!=null) {
                    if (state["sceneMode"] == 1) {
                             viewer.scene.morphToColumbusView();

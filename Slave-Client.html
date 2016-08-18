@@ -138,7 +138,11 @@
                         }
 
 
-	}
+	} if(state["time"]!=null) {
+        console.log("TimeLine Update Rxd: "+state["time"]);
+        setToMasterTime(state["time"]);
+
+    }
         }
 
         function updateFOV() {
@@ -247,6 +251,16 @@ viewer.scene.morphComplete.addEventListener(function (){
 console.log("morph completed");
 updateFOV();
 });
+
+
+
+function setToMasterTime(time) {
+console.log("Got time: "+time);
+viewer.clock.currentTime = Cesium.JulianDate.fromIso8601(time),
+// Update the Timeline to the Clock
+viewer.timeline.updateFromClock();
+}
+
     </script>
 </body>
 

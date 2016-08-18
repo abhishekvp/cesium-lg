@@ -12,4 +12,5 @@ message CesiumSync {
     optional string imageryProvider = 11;
     optional int32 sceneMode = 12;
     optional bool slaveFPS = 13;
+    optional string time = 14;
 }

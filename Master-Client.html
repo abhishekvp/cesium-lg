@@ -363,6 +363,21 @@
             };
 
         }
+function handleSetTime(e) {
+    if (Cesium.defined(viewer.timeline)) {
+         console.log("Sending timeline update: "+e.timeJulian);
+         if (ws != undefined) {
+                var sync = new CesiumSync();
+                // This is a Cesium State Sycn Message
+                sync.msgtype = 3;
+                sync.time = e.timeJulian.toString();
+                ws.send(sync.toArrayBuffer());
+            }
+
+    }
+}
+
+viewer.timeline.addEventListener('settime', handleSetTime, false);
 viewer.scene.morphComplete.addEventListener(function (){
 console.log("morph completed");
 updateFOV();

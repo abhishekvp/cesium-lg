@@ -79,7 +79,8 @@
 				state_sync.sceneMode = sync.sceneMode;
 			if(sync.slaveFPS!=null)
 				state_sync.slaveFPS = sync.slaveFPS;
-
+            if(sync.time!=null)
+                state_sync.time = sync.time;
 		    }	
 
                 } catch (err) {

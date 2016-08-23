@@ -9,14 +9,14 @@ Enabling other applications for Liquid Galaxy would greatly benefit the open sou
 
 ### Deploying the Application
 
-* Clone or download this repository
-* cd into the directory of this repository
-* Move this directory to host it on a server. On a Linux machine with an Apache server, it would be placed at /var/www/html/
+* Clone or download this repository.
+* cd into the directory of this repository.
+* Move this directory to host it on a server. On a Linux machine with an Apache server, it would be placed at /var/www/html/.
 * Rename the sample-web-config.js to web-config.js and sample-node-config.js to node-config.js. Populate the web-config.js with the Bing Maps API Key.
  * To obtain your own Bing Maps API Key, please follow the steps given [here](https://msdn.microsoft.com/en-us/library/ff428642.aspx).
  * You may change the Server address in node-config.js and web-config.js. By default it is set to 'localhost'.
 * `npm install`
-* `node server.js`to start the Node relayer.
+* `node server.js` to start the Node relayer.
 *  The application can now be accessed at:
   * Master Display: http://YOURSERVER/cesium-lg/Master-Client.html
   * Slave Displays: http://YOURSERVER/cesium-lg/Slave-Client.html?yaw=SOMEVALUE 

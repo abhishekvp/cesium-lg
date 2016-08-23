@@ -22,7 +22,7 @@ Enabling other applications for Liquid Galaxy would greatly benefit the open sou
   * Slave Displays: http://YOURSERVER/cesium-lg/Slave-Client.html?yaw=SOMEVALUE 
   on your web browser.
 * Move the camera using the mouse on the Master display and the Slave will follow suit.
-* Slave-Client.html expects a yaw parameter in the URL, if no yaw is provided, it mimics the Master. One needs to try it out different yaw values depending on the size and orientation of the displays to achieve perfect aligning.
+* Slave-Client.html expects a yaw parameter in the URL, if no yaw is provided, it mimics the Master. One needs to experiment with different yaw values depending on the size and orientation of the displays to achieve perfect alignment.
 * The application also supports Google Earth acting as the Master, while all Cesiums acting as Slaves. 
   * Please follow the steps given [here](https://github.com/LiquidGalaxy/liquid-galaxy/wiki/QuickStart) to set up the drivers.ini in your Google Earth installation, making sure that the ViewSync/port in drivers.ini  matches with the UDP_PORT in node-config.js.
 

@@ -26,4 +26,8 @@ Enabling other applications for Liquid Galaxy would greatly benefit the open sou
 * The application also supports Google Earth acting as the Master, while all Cesiums acting as Slaves. 
   * Please follow the steps given [here](https://github.com/LiquidGalaxy/liquid-galaxy/wiki/QuickStart) to set up the drivers.ini in your Google Earth installation, making sure that the ViewSync/port in drivers.ini  matches with the UDP_PORT in node-config.js.
 
+### Video of the Demonstration
+
+[![GSoC 2016: Enabling Cesium for Liquid Galaxy](https://img.youtube.com/vi/P_OdDbV9lZE/0.jpg)](https://www.youtube.com/watch?v=P_OdDbV9lZE)
+
 

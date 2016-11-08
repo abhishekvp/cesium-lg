@@ -2,6 +2,7 @@
 * GSoC  2016 Project Page: https://summerofcode.withgoogle.com/projects/#6055698639093760
 * Mentor and Organization: Andrew Leahy, Liquid Galaxy Project
 * Student: Abhishek V. Potnis
+* Article on CesiumJS Website: https://cesiumjs.org/demos/LiquidGalaxy.html
 
 ###  Abstract
 
